@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telecom-bench"
+version = "0.1.0"
+description = "Telecommunications reasoning benchmarks"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "inspect-ai",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = [
+    "telecom_bench",
+    "telecom_bench.benchmarks",
+    "telecom_bench.benchmarks.telelogs",
+    "telecom_bench.benchmarks.telemath",
+    "telecom_bench.benchmarks.teleqna",
+    "telecom_bench.scripts",
+]
+

@@ -1,17 +1,11 @@
-import sys
-from pathlib import Path
 from textwrap import dedent
-
-ROOT_DIR = Path(__file__).resolve().parents[2]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
 
 from inspect_ai import Task, task  # noqa: E402
 from inspect_ai.agent import Agent, agent, react, AgentPrompt  # noqa: E402
 from inspect_ai.tool import bash, python  # noqa: E402
 from inspect_ai.dataset import FieldSpec  # noqa: E402
 from inspect_ai.scorer import match  # noqa: E402
-from scripts.utils import load_env, load_huggingface_dataset  # type: ignore # noqa: E402
+from telecom_bench.scripts.utils import load_env, load_huggingface_dataset  # type: ignore # noqa: E402
 
 # Load environment variables
 load_env()
