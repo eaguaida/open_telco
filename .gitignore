@@ -1,0 +1,27 @@
+# Environment variables
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Eval log files (only keep JSON logs)
+*.eval
+
+# IDE directories
+.cursor/
+.vscode/
+.idea/
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/

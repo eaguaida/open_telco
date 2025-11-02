@@ -1,0 +1,3804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom Bench Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: none;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: none;
+            font-size: 0.875rem;
+            letter-spacing: 0;
+            color: #374151;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: all 0.2s;
+            color: #1a1a1a;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            background: #3b82f6;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0.625rem 1.25rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0;
+            color: #ffffff;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #2563eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:active:not(:disabled) {
+            background: #1d4ed8;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-run {
+            background: #3b82f6;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-run:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn-telemath {
+            background: #3b82f6;
+        }
+
+        .btn-telemath:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn-teleqna {
+            background: #6366f1;
+        }
+
+        .btn-teleqna:hover:not(:disabled) {
+            background: #4f46e5;
+        }
+
+        .task-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .output-panel {
+            background: #1a1a1a;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #e5e7eb;
+        }
+
+        .output-panel pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .status.idle {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .status.running {
+            background: #dbeafe;
+            color: #1e40af;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            font-weight: 400;
+        }
+
+        .provider-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .model-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .model-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+
+        .model-row-fields {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .model-row-fields select,
+        .model-row-fields input,
+        .model-row-fields textarea {
+            width: 100%;
+        }
+
+        .model-ids-input {
+            resize: vertical;
+            min-height: 38px;
+            font-family: inherit;
+        }
+
+        .model-remove {
+            background: none;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.5rem 0.65rem;
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: all 0.15s ease;
+            min-width: 38px;
+        }
+
+        .model-remove:hover {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .model-actions {
+            margin-top: 0.5rem;
+        }
+
+        .btn-small {
+            background: #3b82f6;
+            border: none;
+            border-radius: 6px;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-small:hover {
+            background: #2563eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .selection-summary {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .progress-overlay {
+            margin-top: 1.5rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .progress-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .progress-card.running {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .progress-card.complete {
+            border-color: #10b981;
+            background: #d1fae5;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .progress-card.failed {
+            border-color: #ef4444;
+            background: #fee2e2;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .progress-card.cancelled {
+            border-color: #f59e0b;
+            background: #fef3c7;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+        }
+
+        .progress-card-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border: none;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #3b82f6;
+            transition: width 0.4s ease;
+            border-radius: 4px;
+        }
+
+        .progress-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .status-pill.queued {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .status-pill.running {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-pill.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pill.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pill.cancelled {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .progress-subtitle {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.35rem;
+        }
+
+        .task-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .task-option {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            column-gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .task-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .task-label {
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #1a1a1a;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .quick-action-btn {
+            flex: 1 1 180px;
+            background: #3b82f6;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 0.75rem 1.25rem;
+            font-family: inherit;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #ffffff;
+        }
+
+        .quick-action-btn:hover {
+            background: #2563eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-feed {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .activity-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .activity-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .activity-item strong {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .activity-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .activity-empty {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .benchmark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .benchmark-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .benchmark-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .benchmark-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .benchmark-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .benchmark-actions .btn {
+            flex: 1 1 120px;
+            text-align: center;
+        }
+
+        .top-performers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .top-performer-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .top-performer-card strong {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .top-performer-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .benchmark-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .benchmark-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .benchmark-header:hover {
+            background: #f9fafb;
+        }
+
+        .benchmark-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .benchmark-summary h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .benchmark-stats {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .benchmark-body {
+            padding: 1rem 1.25rem 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .benchmark-body.active {
+            display: block;
+        }
+
+        .provider-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .provider-group h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #1a1a1a;
+        }
+
+        .model-row {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #f9fafb;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .model-row:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .model-row .model-name {
+            font-weight: 500;
+            font-family: inherit;
+            color: #1a1a1a;
+        }
+
+        .model-score {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .model-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .model-runs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .model-run-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #f9fafb;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .model-run-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .model-run-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: #1a1a1a;
+        }
+
+        .model-run-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .top-performer-badge {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .benchmark-toggle {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #6b7280;
+            background: #ffffff;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .model-badge {
+            padding: 0.25rem 0.6rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .model-badge.winner {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .comparison-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            z-index: 1000;
+        }
+
+        .comparison-dialog {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 1.5rem;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .comparison-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .comparison-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .comparison-model-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .comparison-model-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .comparison-model-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .comparison-model-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+        }
+
+        .comparison-model-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .comparison-metric-label {
+            font-weight: 600;
+            background: #f9fafb;
+        }
+
+        .comparison-best-value {
+            background: #d1fae5 !important;
+            font-weight: 600;
+        }
+
+        .comparison-option {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+        }
+
+        .comparison-option input {
+            accent-color: #3b82f6;
+        }
+
+        .comparison-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.625rem 0.75rem;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .comparison-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .comparison-table td.best {
+            background: #d1fae5;
+            font-weight: 600;
+        }
+
+        .comparison-table td.worst {
+            background: #fee2e2;
+        }
+
+        .comparison-placeholder {
+            text-align: center;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .provider-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            padding: 0.75rem 1.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: none;
+            letter-spacing: 0;
+            flex: 1;
+            color: #6b7280;
+        }
+
+        .tab-btn:hover {
+            background: #f9fafb;
+            color: #1a1a1a;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #3b82f6;
+            border-color: #e5e7eb;
+            border-bottom-color: #ffffff;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Log viewer */
+        .log-item {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .log-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .log-item-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #1a1a1a;
+        }
+
+        .log-item-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .log-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .log-section-title {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            color: #1a1a1a;
+            letter-spacing: 0;
+        }
+
+        .message-box {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.813rem;
+        }
+
+        .message-role {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .tool-call {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.75rem;
+        }
+
+        .score-badge {
+            display: inline-block;
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: #1e40af;
+        }
+
+        /* Trajectory Viewer Styles */
+        .run-category {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .run-category:hover {
+            border-color: #3b82f6;
+            background: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .run-category-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-transform: none;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+            letter-spacing: 0;
+        }
+
+        .run-category-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .trajectory-item {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trajectory-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .trajectory-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: none;
+            font-size: 0.75rem;
+            letter-spacing: 0;
+        }
+
+        .badge-passed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-pwned {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .badge-not-pwned {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .trajectory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .trajectory-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-nav {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: none;
+            cursor: pointer;
+            color: #374151;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0;
+            transition: all 0.15s;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .run-detail-header {
+            margin-bottom: 2rem;
+        }
+
+        .run-metadata-panel {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .run-metadata-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-transform: none;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0;
+        }
+
+        .run-metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .run-metadata-item {
+            padding: 0.75rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .run-metadata-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: none;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0;
+        }
+
+        .run-metadata-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            word-break: break-word;
+        }
+
+        .run-score-panel {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .run-score-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .run-score-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: none;
+            color: #1e40af;
+        }
+
+        .run-score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            font-family: inherit;
+        }
+
+        .run-score-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .comparison-context-panel {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .comparison-context-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #92400e;
+            text-transform: none;
+            margin-bottom: 1rem;
+            letter-spacing: 0;
+        }
+
+        .comparison-context-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-context-item {
+            font-size: 0.875rem;
+            padding: 0.5rem;
+            background: #ffffff;
+            border: 1px solid #fcd34d;
+            border-radius: 4px;
+        }
+
+        .run-actions-panel {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .run-actions-panel .btn {
+            flex: 1 1 200px;
+        }
+
+        .trajectory-summary {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .trajectory-summary-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-transform: none;
+            margin-bottom: 1rem;
+            letter-spacing: 0;
+        }
+
+        .trajectory-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .trajectory-meta-item {
+            font-size: 0.875rem;
+        }
+
+        .trajectory-meta-item strong {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            display: block;
+            margin-bottom: 0.25rem;
+            color: #6b7280;
+        }
+
+        .task-description {
+            border-radius: 12px;
+            margin-bottom: 2.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+        }
+
+        .task-description summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 1.5rem 1.75rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #111827;
+            letter-spacing: 0.005em;
+            background: linear-gradient(180deg, #f5f3ff 0%, #e0e7ff 100%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .task-description summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .task-description summary::before {
+            content: '';
+            width: 6px;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+            display: inline-block;
+        }
+
+        .task-description summary::after {
+            content: '\25BC';
+            font-size: 0.85rem;
+            color: #4c1d95;
+            margin-left: auto;
+            transition: transform 0.2s ease;
+        }
+
+        .task-description[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .task-description-body {
+            font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.92rem;
+            line-height: 1.65;
+            color: #1f2937;
+            letter-spacing: 0.01em;
+            display: grid;
+            gap: 1rem;
+            padding: 1.75rem 2rem 2rem 2rem;
+        }
+
+        .task-description-body pre,
+        .task-description-body code {
+            font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            background: rgba(79, 70, 229, 0.07);
+            border-radius: 10px;
+            padding: 1rem 1.15rem;
+            color: #312e81;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .task-description-body p {
+            margin: 0;
+        }
+
+        .task-description-body strong {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .task-description-body ul,
+        .task-description-body ol {
+            margin: 0.5rem 0 0 1.25rem;
+        }
+
+        /* Answer Comparison Section */
+        .answer-comparison-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .answer-comparison-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-transform: none;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .explanation-box {
+            background: #fef3c7;
+            border: 1px solid #fde047;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            color: #92400e;
+            letter-spacing: 0;
+        }
+
+        .explanation-content {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #78350f;
+        }
+
+        .reasoning-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            background: #f9fafb;
+            overflow: hidden;
+        }
+
+        .reasoning-section[open] {
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .reasoning-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+            cursor: pointer;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1f2937;
+        }
+
+        .reasoning-toggle::-webkit-details-marker {
+            display: none;
+        }
+
+        .reasoning-toggle::after {
+            content: '\25BC';
+            font-size: 0.8rem;
+            margin-left: auto;
+            color: #6b7280;
+            transition: transform 0.2s ease;
+        }
+
+        .reasoning-section[open] .reasoning-toggle::after {
+            transform: rotate(180deg);
+        }
+
+        .reasoning-content {
+            padding: 0 1.25rem 1.25rem 1.25rem;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .reasoning-step {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.85rem;
+        }
+
+        .reasoning-step-index {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.2rem 0.65rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reasoning-step-body {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #374151;
+            white-space: pre-wrap;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .correct-answer {
+            background: #d1fae5;
+        }
+
+        .llm-answer-correct {
+            background: #d1fae5;
+        }
+
+        .llm-answer-wrong {
+            background: #fee2e2;
+        }
+
+        .comparison-label {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #6b7280;
+            letter-spacing: 0;
+        }
+
+        .comparison-value {
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            word-break: break-word;
+            padding: 0.75rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .comparison-status {
+            text-align: center;
+            font-weight: 600;
+            text-transform: none;
+            font-size: 1rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            letter-spacing: 0;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .step-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .step-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-transform: none;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .step-header:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .step-toggle {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+            background: #ffffff;
+            padding: 0.25rem 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            box-shadow: none;
+        }
+
+        .step-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .step-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .step-block {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .step-block-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .step-block-toggle {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: none;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .step-block-toggle:hover {
+            background: #f9fafb;
+        }
+
+        .step-block-content {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .step-block-content.collapsed {
+            display: none;
+        }
+
+        .reasoning-block {
+            background: #fef3c7;
+            border: 1px solid #fde047;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .reasoning-label {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            color: #92400e;
+            letter-spacing: 0;
+        }
+
+        .tool-call-block {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-call-header {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #1e40af;
+            letter-spacing: 0;
+        }
+
+        .tool-call-code {
+            background: #1a1a1a;
+            color: #e5e7eb;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.813rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .tool-response-block {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-response-header {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #6b7280;
+            letter-spacing: 0;
+        }
+
+        .tool-response-content {
+            background: #1a1a1a;
+            color: #e5e7eb;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.813rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .submission-block {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .submission-header {
+            font-weight: 600;
+            text-transform: none;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #1e40af;
+            letter-spacing: 0;
+        }
+
+        .submission-content {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .collapsible-section {
+            margin-bottom: 1rem;
+        }
+
+        .page-counter {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #8bd3dd;
+        }
+
+        /* Submission Section Styles */
+        .submission-section {
+            background: #ffffff;
+            border: 4px solid #001858;
+            box-shadow: 8px 8px 0 #001858;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .submission-section-header {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #f582ae;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .submission-result {
+            background: #ffffff;
+            border: 3px solid #001858;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .submission-success {
+            background: #8bd3dd;
+        }
+
+        .submission-fail {
+            background: #f582ae;
+        }
+
+        .submission-result-header {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #001858;
+            letter-spacing: 1px;
+        }
+
+        .submission-result-content {
+            background: #ffffff;
+            border: 2px solid #001858;
+            padding: 0.75rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.8;
+            color: #001858;
+        }
+
+        .submission-result-content strong {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Telecom Bench</h1>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="dashboard">🏠 Dashboard</button>
+            <button class="tab-btn" data-tab="run">▶ Run Evaluation</button>
+            <button class="tab-btn" data-tab="logs">📊 View Logs</button>
+            <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard-tab">
+            <div class="panel">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Quick Actions</h2>
+                <div class="quick-actions">
+                    <button type="button" class="quick-action-btn" data-action="new-evaluation">➕ New Evaluation</button>
+                    <button type="button" class="quick-action-btn" data-action="compare-models">📊 Compare Models</button>
+                    <button type="button" class="quick-action-btn" data-action="view-runs">📁 View All Runs</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Benchmarks Overview</h2>
+                <div class="benchmark-grid" id="benchmarkOverview"></div>
+            </div>
+
+            <div class="panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Recent Activity</h2>
+                <ul class="activity-feed" id="recentActivityBottom">
+                    <li class="activity-empty">Loading recent activity...</li>
+                </ul>
+            </div>
+
+            <div class="panel" id="topPerformersPanel" style="display: none;">
+                <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Top Performers</h2>
+                <div class="top-performers" id="topPerformers"></div>
+            </div>
+        </div>
+
+        <!-- Run Tab -->
+        <div class="tab-content" id="run-tab">
+        <div class="panel">
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Configuration</h2>
+            
+            <form id="evalForm">
+                <div class="form-group">
+                    <label>Select Providers &amp; Models</label>
+                    <div id="modelSelectionSummary" class="selection-summary">
+                        <span id="selectionSummaryText">No models configured yet</span>
+                    </div>
+                    <div class="provider-grid">
+                        <div id="modelRows" class="model-rows"></div>
+                        <div class="model-actions">
+                            <button type="button" class="btn-small" id="addModelRowBtn">Add provider / model</button>
+                        </div>
+                    </div>
+                    <p class="hint">Enter model names only (e.g., "gpt-4" not "openai/gpt-4"). The provider prefix is added automatically. Separate multiple models with commas or newlines.</p>
+                </div>
+
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="difficulty">Difficulty</label>
+                        <select id="difficulty" name="difficulty">
+                            <option value="full">Full (All Levels)</option>
+                            <option value="basic">Basic</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="limit">Sample Limit</label>
+                        <input type="number" id="limit" name="limit" placeholder="e.g., 10" min="1">
+                        <p class="hint">Max samples to evaluate</p>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="max_connections">Max Connections</label>
+                        <input type="number" id="max_connections" name="max_connections" value="10" min="1">
+                        <p class="hint">Concurrent connections (default: 10)</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max_tokens">Max Tokens</label>
+                        <input type="number" id="max_tokens" name="max_tokens" placeholder="Model default" min="1">
+                        <p class="hint">Max tokens per completion</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="temperature">Temperature</label>
+                    <input type="number" id="temperature" name="temperature" placeholder="e.g., 0.7" min="0" max="2" step="0.1">
+                    <p class="hint">Sampling temperature (0-2)</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Task</label>
+                    <div class="task-options">
+                        <label class="task-option">
+                            <input type="radio" name="task" value="telemath" checked>
+                            <span class="task-label">📐 TeleMath (Agent)</span>
+                        </label>
+                        <label class="task-option">
+                            <input type="radio" name="task" value="teleqna">
+                            <span class="task-label">🎯 TeleQnA (Multiple Choice)</span>
+                        </label>
+                        <label class="task-option">
+                            <input type="radio" name="task" value="telelogs">
+                            <span class="task-label">🗂️ TeleLogs (Log Analysis)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-run" id="runEvaluationBtn">Run Evaluation</button>
+            </form>
+
+            <div class="status idle" id="status">Idle</div>
+
+            <div class="progress-overlay" id="progressView" style="display: none;">
+                <div class="progress-header">
+                    <div>
+                        <h3 id="progressTitle" style="font-size: 1.25rem;">Preparing run...</h3>
+                        <p id="progressSubtitle" class="progress-subtitle">Waiting for status updates</p>
+                    </div>
+                    <div class="progress-actions">
+                        <button type="button" class="btn" id="cancelRunBtn" style="background: #f3d2c1;">Cancel All</button>
+                        <button type="button" class="btn btn-run" id="viewResultsBtn" style="display: none;">View Results</button>
+                    </div>
+                </div>
+                <div class="progress-grid" id="progressGrid"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 style="margin-bottom: 1rem; font-size: 1.5rem; color: #8bd3dd;">Output</h2>
+            <div class="output-panel" id="output">
+                <pre>Waiting for evaluation to start...</pre>
+            </div>
+        </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div class="tab-content" id="logs-tab">
+            <!-- Benchmark Hierarchy View -->
+            <div id="logsHierarchyView">
+                <h1 style="margin-bottom: 2rem;">📊 Benchmark Runs</h1>
+                <div id="benchmarkHierarchy">
+                    <p style="text-align: center; color: #172c66;">Loading benchmarks...</p>
+                </div>
+            </div>
+
+            <!-- Run Detail View (List of Trajectories) -->
+            <div id="runDetailView" style="display: none;">
+                <button class="btn" onclick="backToRunsList()" style="margin-bottom: 2rem; background: #fef6e4;">
+                    &lt; BACK TO HOME
+                </button>
+                <div id="runDetailContent"></div>
+            </div>
+
+            <!-- Trajectory Detail View -->
+            <div id="trajectoryDetailView" style="display: none;">
+                <div id="trajectoryDetailContent"></div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div class="tab-content" id="leaderboard-tab">
+            <div class="panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Leaderboard</h2>
+                <p style="color: #172c66; font-size: 0.9rem;">Stay tuned. Model leaderboards are coming soon.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="comparisonOverlay" class="comparison-overlay" style="display: none;">
+        <div class="comparison-dialog">
+            <div class="comparison-header">
+                <h3 id="comparisonTitle">Compare Models</h3>
+                <button type="button" class="btn" id="closeComparisonBtn" style="background: #fef6e4;">Close</button>
+            </div>
+            <div class="comparison-controls">
+                <label class="comparison-label">Select models to compare on <span id="comparisonBenchmark" style="font-weight: 800;"></span></label>
+                <div id="comparisonSelector" class="comparison-selector"></div>
+            </div>
+            <div class="comparison-table-wrapper">
+                <table id="comparisonTable" class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th class="comparison-placeholder">Select at least two models</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple provider list
+        const PROVIDERS = [
+            'openai', 'anthropic', 'google', 'grok', 'mistral', 'deepseek', 'perplexity',
+            'aws-bedrock', 'azure-ai',
+            'groq', 'together', 'fireworks', 'cloudflare', 'hf-inference', 'sambanova',
+            'huggingface', 'vllm', 'ollama', 'llamacpp', 'sglang', 'transformerlens'
+        ];
+
+        // Global state
+        let modelRows = [];
+        let rowIdCounter = 0;
+        let currentRunId = null;
+        let progressPollInterval = null;
+        let currentLogData = null;
+        let currentTrajectoryIndex = 0;
+        let logsCache = [];
+        const benchmarkCache = {};
+
+        const TASK_DISPLAY = {
+            telemath: 'TeleMath',
+            teleqna: 'TeleQnA',
+            telelogs: 'TeleLogs'
+        };
+
+        const BENCHMARK_CONFIG = {
+            TeleMath: {
+                key: 'telemath',
+                title: 'TeleMath',
+                icon: '📐',
+                order: 0
+            },
+            TeleQnA: {
+                key: 'teleqna',
+                title: 'TeleQnA',
+                icon: '🎯',
+                order: 1
+            },
+            TeleLogs: {
+                key: 'telelogs',
+                title: 'TeleLogs',
+                icon: '🗂️',
+                order: 2
+            }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                initializeModelSelection();
+                initializeTabNavigation();
+                initializeDashboard();
+                initializeRunEvaluation();
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        });
+
+        // Initialize model selection UI
+        function initializeModelSelection() {
+            const addBtn = document.getElementById('addModelRowBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', addModelRow);
+            }
+            
+            // Add initial row
+            addModelRow();
+            updateSelectionSummary();
+        }
+
+        function addModelRow() {
+            const rowId = rowIdCounter++;
+            modelRows.push(rowId);
+            
+            const container = document.getElementById('modelRows');
+            if (!container) return;
+
+            const providerOptions = PROVIDERS.map(p => 
+                `<option value="${p}">${p}</option>`
+            ).join('');
+
+            const rowHtml = `
+                <div class="model-row" id="model-row-${rowId}">
+                    <div class="model-row-fields">
+                        <select class="provider-select" data-row="${rowId}">
+                            <option value="">Provider</option>
+                            ${providerOptions}
+                        </select>
+                        <textarea class="model-ids-input" data-row="${rowId}" rows="1"></textarea>
+                    </div>
+                    <button type="button" class="model-remove" data-row="${rowId}">×</button>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', rowHtml);
+
+            // Attach events
+            const row = document.getElementById(`model-row-${rowId}`);
+            if (row) {
+                row.querySelector('.model-remove')?.addEventListener('click', () => removeModelRow(rowId));
+                row.querySelector('.provider-select')?.addEventListener('change', updateSelectionSummary);
+                
+                const textarea = row.querySelector('.model-ids-input');
+                if (textarea) {
+                    textarea.addEventListener('input', () => {
+                        updateSelectionSummary();
+                        // Auto-grow textarea
+                        textarea.style.height = 'auto';
+                        textarea.style.height = textarea.scrollHeight + 'px';
+                    });
+                }
+            }
+        }
+
+        function removeModelRow(rowId) {
+            modelRows = modelRows.filter(id => id !== rowId);
+            const row = document.getElementById(`model-row-${rowId}`);
+            if (row) row.remove();
+            
+            // Keep at least one row
+            if (modelRows.length === 0) {
+                addModelRow();
+            }
+            updateSelectionSummary();
+        }
+
+        function getSelectedModels() {
+            const models = [];
+            modelRows.forEach(rowId => {
+                const row = document.getElementById(`model-row-${rowId}`);
+                if (!row) return;
+
+                const provider = row.querySelector('.provider-select')?.value;
+                const modelIdsInput = row.querySelector('.model-ids-input')?.value || '';
+                
+                if (!provider || !modelIdsInput.trim()) return;
+
+                // Split by comma or newline
+                const modelIds = modelIdsInput.split(/[\n,]+/).map(s => s.trim()).filter(s => s);
+                
+                modelIds.forEach(modelId => {
+                    models.push({
+                        model: `${provider}/${modelId}`,
+                        label: modelId,
+                        provider: provider
+                    });
+                });
+            });
+            return models;
+        }
+
+        function updateSelectionSummary() {
+            const summaryText = document.getElementById('selectionSummaryText');
+            if (!summaryText) return;
+
+            const models = getSelectedModels();
+            const count = models.length;
+
+            if (count === 0) {
+                summaryText.textContent = 'No models configured yet';
+            } else {
+                const providers = new Set(models.map(m => m.provider));
+                summaryText.textContent = `${count} model${count !== 1 ? 's' : ''} · ${providers.size} provider${providers.size !== 1 ? 's' : ''}`;
+            }
+        }
+
+        // Tab navigation
+        function initializeTabNavigation() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.dataset.tab;
+                    switchTab(tabName);
+                });
+            });
+
+            // Quick action buttons
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const action = btn.dataset.action;
+                    if (action === 'new-evaluation') {
+                        switchTab('run');
+                    } else if (action === 'compare-models') {
+                        switchTab('logs');
+                        // TODO: Open comparison view
+                    } else if (action === 'view-runs') {
+                        switchTab('logs');
+                        loadLogs();
+                    }
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const activeTab = document.getElementById(`${tabName}-tab`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+
+                // Load data if needed
+                if (tabName === 'dashboard') {
+                    loadDashboard();
+                } else if (tabName === 'logs') {
+                    loadLogs();
+                }
+            }
+        }
+
+        // Dashboard functionality
+        function initializeDashboard() {
+            loadDashboard();
+        }
+
+        async function loadDashboard() {
+            try {
+                await Promise.all([loadRecentActivity(), loadBenchmarkOverview()]);
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+            }
+        }
+
+        async function loadRecentActivity() {
+            const container = document.getElementById('recentActivityBottom');
+            if (!container) return;
+
+            try {
+                const response = await fetch('/api/logs');
+                const logs = await response.json();
+                
+                if (logs.length === 0) {
+                    container.innerHTML = '<li class="activity-empty">No recent runs yet. Launch an evaluation!</li>';
+                    return;
+                }
+
+                const recent = logs.slice(0, 5);
+                container.innerHTML = recent.map(log => {
+                    const date = new Date(log.modified * 1000);
+                    const relativeTime = getRelativeTime(date);
+                    const taskName = extractTaskName(log.name);
+                    
+                    return `
+                        <li class="activity-item" onclick="viewRunFromActivity('${log.name}')">
+                            <strong>${taskName}</strong>
+                            <div class="activity-meta">
+                                <span>${relativeTime}</span>
+                                <span>[View Details]</span>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                container.innerHTML = `<li class="activity-empty">Error loading recent activity: ${error.message}</li>`;
+            }
+        }
+
+        async function loadBenchmarkOverview() {
+            const container = document.getElementById('benchmarkOverview');
+            if (!container) return;
+
+            try {
+                const response = await fetch('/api/logs');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const logs = await response.json();
+
+                const benchmarks = {
+                    'telecom-bench': { name: 'TeleMath', icon: '📐', logs: [] },
+                    'teleqna-bench': { name: 'TeleQnA', icon: '🎯', logs: [] },
+                    'telelogs-bench': { name: 'TeleLogs', icon: '🗂️', logs: [] }
+                };
+
+                logs.forEach(log => {
+                    const key =
+                        log.name.includes('telecom') ? 'telecom-bench' :
+                        log.name.includes('teleqna') ? 'teleqna-bench' :
+                        log.name.includes('telelogs') ? 'telelogs-bench' :
+                        null;
+
+                    if (key && benchmarks[key]) {
+                        benchmarks[key].logs.push(log);
+                    }
+                });
+
+                container.innerHTML = Object.values(benchmarks).map(bench => {
+                    const bestScore = '—';
+                    const topModel = '—';
+                    const lastRun = bench.logs.length > 0 
+                        ? getRelativeTime(new Date(Math.max(...bench.logs.map(l => l.modified * 1000))))
+                        : 'Never';
+
+                    return `
+                        <div class="benchmark-card">
+                            <h3>${bench.icon} ${bench.name} Benchmark</h3>
+                            <div class="benchmark-meta">
+                                <div><strong>Total Runs:</strong> ${bench.logs.length}</div>
+                                <div><strong>Best Score:</strong> ${bestScore}</div>
+                                <div><strong>Top Model:</strong> ${topModel}</div>
+                                <div><strong>Last Run:</strong> ${lastRun}</div>
+                            </div>
+                            <div class="benchmark-actions">
+                                <button class="btn" onclick="switchTab('logs'); loadLogs();">View Details</button>
+                                <button class="btn" onclick="switchTab('run')">Run New</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading benchmarks:', error);
+                container.innerHTML = `<p style="color: #dc2626;">Error loading benchmarks: ${error.message}</p>`;
+            }
+        }
+
+        function extractTaskName(logName) {
+            if (logName.includes('telecom')) return 'TeleMath';
+            if (logName.includes('teleqna')) return 'TeleQnA';
+            if (logName.includes('telelogs')) return 'TeleLogs';
+            return 'Unknown';
+        }
+
+        function getRelativeTime(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Run evaluation functionality
+        function initializeRunEvaluation() {
+            const runBtn = document.getElementById('runEvaluationBtn');
+            if (runBtn) {
+                runBtn.addEventListener('click', handleRunEvaluation);
+            }
+
+            const cancelBtn = document.getElementById('cancelRunBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', handleCancelRun);
+            }
+
+            const viewResultsBtn = document.getElementById('viewResultsBtn');
+            if (viewResultsBtn) {
+                viewResultsBtn.addEventListener('click', () => {
+                    switchTab('logs');
+                    loadLogs();
+                });
+            }
+        }
+
+        async function handleRunEvaluation() {
+            const models = getSelectedModels();
+            
+            if (models.length === 0) {
+                alert('Please configure at least one provider and model');
+                return;
+            }
+
+            const form = document.getElementById('evalForm');
+            const formData = new FormData(form);
+            const task = formData.get('task') || 'telemath';
+
+            const payload = {
+                task: task,
+                models: models,
+                difficulty: formData.get('difficulty') || 'full',
+                limit: formData.get('limit') || null,
+                max_connections: formData.get('max_connections') || '10',
+                max_tokens: formData.get('max_tokens') || null,
+                temperature: formData.get('temperature') || null
+            };
+
+            try {
+                const response = await fetch('/api/runs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to start evaluation');
+                }
+
+                const result = await response.json();
+                currentRunId = result.run_id;
+                
+                // Show progress view
+                document.getElementById('progressView').style.display = 'block';
+                document.getElementById('status').textContent = 'Running...';
+                document.getElementById('status').className = 'status running';
+
+                // Start polling
+                startProgressPolling(currentRunId, task);
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function startProgressPolling(runId, taskName) {
+            if (progressPollInterval) {
+                clearInterval(progressPollInterval);
+            }
+
+            const taskDisplay = TASK_DISPLAY[taskName] || taskName;
+            const progressTitle = document.getElementById('progressTitle');
+            const progressSubtitle = document.getElementById('progressSubtitle');
+            const progressGrid = document.getElementById('progressGrid');
+            const viewResultsBtn = document.getElementById('viewResultsBtn');
+
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/api/runs/${runId}/status`);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error('Polling error:', data.error);
+                        return;
+                    }
+
+                    // Update header
+                    if (progressTitle) {
+                        progressTitle.textContent = `Running ${data.overall.running + data.overall.queued} models on ${taskDisplay}`;
+                    }
+                    if (progressSubtitle) {
+                        progressSubtitle.textContent = `Overall: ${data.overall.complete}/${data.overall.total} Complete`;
+                    }
+
+                    // Update progress cards
+                    if (progressGrid) {
+                        progressGrid.innerHTML = data.models.map(model => {
+                            const statusIcon = getStatusIcon(model.status);
+                            const progressPercent = model.progress_percent || 0;
+                            
+                            return `
+                                <div class="progress-card ${model.status}">
+                                    <div class="progress-card-header">
+                                        ${statusIcon} ${model.display_name || model.model}
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+                                    </div>
+                                    <div class="progress-meta">
+                                        <div>Samples: ${model.samples_completed || 0}${model.total_samples ? `/${model.total_samples}` : ''}</div>
+                                        <div>Elapsed: ${model.elapsed || '—'}</div>
+                                        ${model.eta ? `<div>Est. Remaining: ${model.eta}</div>` : ''}
+                                    </div>
+                                    <div>
+                                        <span class="status-pill ${model.status}">${model.status}</span>
+                                    </div>
+                                    ${model.error ? `<div style="color: #f582ae; font-size: 0.75rem; margin-top: 0.5rem;">${escapeHtml(model.error)}</div>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    // Check if complete
+                    if (data.overall.status === 'complete') {
+                        clearInterval(progressPollInterval);
+                        progressPollInterval = null;
+                        if (viewResultsBtn) {
+                            viewResultsBtn.style.display = 'block';
+                        }
+                        if (progressTitle) {
+                            progressTitle.textContent = 'All evaluations complete!';
+                        }
+                        if (progressSubtitle) {
+                            progressSubtitle.textContent = `${data.overall.complete} models finished successfully`;
+                        }
+                    } else if (data.overall.status === 'failed' || data.overall.status === 'cancelled') {
+                        clearInterval(progressPollInterval);
+                        progressPollInterval = null;
+                    }
+
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            };
+
+            poll();
+            progressPollInterval = setInterval(poll, 2000);
+        }
+
+        function getStatusIcon(status) {
+            const icons = {
+                'queued': '⏳',
+                'running': '🟢',
+                'complete': '✅',
+                'failed': '❌',
+                'cancelled': '🚫'
+            };
+            return icons[status] || '❓';
+        }
+
+        async function handleCancelRun() {
+            if (!currentRunId) return;
+            
+            try {
+                await fetch(`/api/runs/${currentRunId}/cancel`, { method: 'POST' });
+                if (progressPollInterval) {
+                    clearInterval(progressPollInterval);
+                    progressPollInterval = null;
+                }
+            } catch (error) {
+                console.error('Cancel error:', error);
+            }
+        }
+
+        // Helper function to extract model and provider from log name or eval data
+        function extractModelProvider(log) {
+            const detail = log.detail;
+            if (!detail || !detail.eval) return { model: 'Unknown Model', provider: 'Unknown Provider' };
+            
+            const modelName = detail.eval.model || 'Unknown Model';
+            
+            // Extract provider from model name
+            let provider = 'Unknown Provider';
+            if (modelName.includes('claude')) {
+                provider = 'Anthropic';
+            } else if (modelName.includes('gpt') || modelName.includes('openai')) {
+                provider = 'OpenAI';
+            } else if (modelName.includes('gemini') || modelName.includes('google')) {
+                provider = 'Google';
+            }
+            
+            return { model: modelName, provider };
+        }
+
+        // Helper function to calculate overall score from samples
+        function calculateScore(detail) {
+            if (!detail || !detail.samples) return null;
+            
+            const samples = detail.samples;
+            let correct = 0;
+            
+            for (const sample of samples) {
+                const summary = getScoreSummary(sample);
+                if (summary.passed) correct++;
+            }
+            
+            return {
+                correct,
+                total: samples.length,
+                percentage: samples.length > 0 ? ((correct / samples.length) * 100).toFixed(1) : 0
+            };
+        }
+
+        // Render benchmark sections with hierarchy: benchmark → provider → model
+        function renderBenchmarkSections(logs) {
+            if (!logs || logs.length === 0) {
+                return '<p style="text-align: center; color: #172c66;">No runs found yet. Launch an evaluation!</p>';
+            }
+            
+            // Group logs by benchmark → provider → model
+            const hierarchy = {};
+            
+            for (const log of logs) {
+                const taskName = extractTaskName(log.name);
+                const { model, provider } = extractModelProvider(log);
+                const score = calculateScore(log.detail);
+                
+                if (!hierarchy[taskName]) {
+                    hierarchy[taskName] = {};
+                }
+                
+                if (!hierarchy[taskName][provider]) {
+                    hierarchy[taskName][provider] = [];
+                }
+                
+                hierarchy[taskName][provider].push({
+                    logName: log.name,
+                    model,
+                    score,
+                    timestamp: log.modified,
+                    detail: log.detail
+                });
+            }
+            
+            // Sort models within each provider by score (descending)
+            for (const taskName in hierarchy) {
+                for (const provider in hierarchy[taskName]) {
+                    hierarchy[taskName][provider].sort((a, b) => {
+                        if (!a.score) return 1;
+                        if (!b.score) return -1;
+                        return b.score.percentage - a.score.percentage;
+                    });
+                }
+            }
+            
+            // Render HTML
+            let html = '';
+            
+            for (const [taskName, providers] of Object.entries(hierarchy)) {
+                const benchmarkConfig = BENCHMARK_CONFIG[taskName] || {
+                    title: taskName,
+                    icon: '📊',
+                    order: 999
+                };
+                
+                // Calculate total runs and best score for this benchmark
+                let totalRuns = 0;
+                let bestScore = null;
+                let bestModel = null;
+                
+                for (const provider in providers) {
+                    for (const run of providers[provider]) {
+                        totalRuns++;
+                        if (run.score && (!bestScore || run.score.percentage > bestScore.percentage)) {
+                            bestScore = run.score;
+                            bestModel = run.model;
+                        }
+                    }
+                }
+                
+                const lastRun = logs.find(log => extractTaskName(log.name) === taskName);
+                const lastRunTime = lastRun ? getRelativeTime(new Date(lastRun.modified)) : 'Never';
+                
+                html += `
+                    <div class="benchmark-section">
+                        <div class="benchmark-header" onclick="toggleBenchmark('${taskName}')">
+                            <div class="benchmark-summary">
+                                <h3>${benchmarkConfig.icon} ${benchmarkConfig.title}</h3>
+                                <div class="benchmark-stats">
+                                    <span>Total Runs: ${totalRuns}</span>
+                                    <span>Best Score: ${bestScore ? bestScore.percentage + '%' : '—'}</span>
+                                    <span>Top Model: ${bestModel || '—'}</span>
+                                    <span>Last Run: ${lastRunTime}</span>
+                                </div>
+                            </div>
+                            <span class="benchmark-toggle" id="toggle-${taskName}">▼ EXPAND</span>
+                        </div>
+                        <div class="benchmark-body" id="body-${taskName}">
+                `;
+                
+                // Render providers and models
+                for (const [provider, models] of Object.entries(providers)) {
+                    const providerName = provider;
+                    
+                    html += `
+                        <div class="provider-group">
+                            <h4>${providerName}</h4>
+                            <div class="model-runs">
+                    `;
+                    
+                    models.forEach((run, index) => {
+                        const isTopPerformer = index === 0 && run.score;
+                        const scoreDisplay = run.score ? `${run.score.correct}/${run.score.total} (${run.score.percentage}%)` : 'N/A';
+                        const timestamp = getRelativeTime(new Date(run.timestamp));
+                        
+                        html += `
+                            <div class="model-run-item" onclick="viewRun('${run.logName}')">
+                                <div class="model-run-header">
+                                    ${isTopPerformer ? '<span class="top-performer-badge">🏆</span>' : ''}
+                                    <strong>${run.model}</strong>
+                                </div>
+                                <div class="model-run-meta">
+                                    <span>Score: ${scoreDisplay}</span>
+                                    <span>•</span>
+                                    <span>${timestamp}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+
+        function toggleBenchmark(taskName) {
+            const body = document.getElementById(`body-${taskName}`);
+            const toggle = document.getElementById(`toggle-${taskName}`);
+            
+            if (!body || !toggle) return;
+            
+            if (body.classList.contains('active')) {
+                body.classList.remove('active');
+                toggle.textContent = '▼ EXPAND';
+            } else {
+                body.classList.add('active');
+                toggle.textContent = '▲ COLLAPSE';
+            }
+        }
+
+        // Logs functionality
+        async function loadLogs() {
+            const hierarchyContainer = document.getElementById('benchmarkHierarchy');
+            const hierarchyView = document.getElementById('logsHierarchyView');
+            const runDetailView = document.getElementById('runDetailView');
+            const trajectoryDetailView = document.getElementById('trajectoryDetailView');
+
+            if (!hierarchyContainer) return;
+
+            if (hierarchyView) hierarchyView.style.display = 'block';
+            if (runDetailView) runDetailView.style.display = 'none';
+            if (trajectoryDetailView) trajectoryDetailView.style.display = 'none';
+
+            hierarchyContainer.innerHTML = '<p style="text-align: center; color: #172c66;">Loading benchmarks...</p>';
+
+            try {
+                const response = await fetch(`/api/logs?t=${Date.now()}`);
+                const logs = await response.json();
+
+                if (logs.length === 0) {
+                    hierarchyContainer.innerHTML = '<p style="text-align: center; color: #172c66;">No runs found yet. Launch an evaluation!</p>';
+                    logsCache = [];
+                    Object.keys(benchmarkCache).forEach(key => delete benchmarkCache[key]);
+                    return;
+                }
+
+                const detailedLogs = await Promise.all(logs.map(async (log) => {
+                    try {
+                        const detailResponse = await fetch(`/api/logs/${log.name}`);
+                        const detail = await detailResponse.json();
+                        if (detail.error) throw new Error(detail.error);
+                        return { ...log, detail };
+                    } catch (error) {
+                        console.error('Failed to load log detail', log.name, error);
+                        return null;
+                    }
+                }));
+
+                logsCache = detailedLogs.filter(Boolean);
+                Object.keys(benchmarkCache).forEach(key => delete benchmarkCache[key]);
+
+                const hierarchyMarkup = renderBenchmarkSections(logsCache);
+                hierarchyContainer.innerHTML = hierarchyMarkup;
+
+            } catch (error) {
+                console.error('Error loading logs', error);
+                hierarchyContainer.innerHTML = '<p style="text-align: center; color: #f582ae;">Error loading benchmark runs</p>';
+            }
+        }
+
+        async function viewRun(logName) {
+            const logsHierarchyView = document.getElementById('logsHierarchyView');
+            const runDetailView = document.getElementById('runDetailView');
+            const runDetailContent = document.getElementById('runDetailContent');
+            
+            if (logsHierarchyView) logsHierarchyView.style.display = 'none';
+            if (runDetailView) runDetailView.style.display = 'block';
+            
+            runDetailContent.innerHTML = '<p style="text-align: center;">Loading run details...</p>';
+            
+            try {
+                const response = await fetch(`/api/logs/${logName}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    runDetailContent.innerHTML = `<p style="color: #f582ae;">${data.error}</p>`;
+                    return;
+                }
+                
+                currentLogData = data;
+                
+                // Extract metadata
+                const taskName = data.eval?.task || 'Unknown Task';
+                const modelName = data.eval?.model || 'Unknown Model';
+                const totalSamples = data.samples?.length || 0;
+                const runDate = data.eval?.created ? new Date(data.eval.created) : null;
+                const duration = data.eval?.duration || 0;
+                
+                // Calculate scores
+                const score = calculateScore(data);
+                const { model, provider } = extractModelProvider({ detail: data });
+                
+                // Find ranking among similar runs
+                const similarRuns = logsCache.filter(log => {
+                    const logTaskName = extractTaskName(log.name);
+                    return logTaskName === extractTaskName(logName);
+                });
+                
+                similarRuns.sort((a, b) => {
+                    const scoreA = calculateScore(a.detail);
+                    const scoreB = calculateScore(b.detail);
+                    if (!scoreA) return 1;
+                    if (!scoreB) return -1;
+                    return parseFloat(scoreB.percentage) - parseFloat(scoreA.percentage);
+                });
+                
+                const ranking = similarRuns.findIndex(log => log.name === logName) + 1;
+                const topRun = similarRuns[0];
+                const topScore = topRun ? calculateScore(topRun.detail) : null;
+                const isTopPerformer = ranking === 1;
+                
+                // Build HTML with comprehensive header
+                let html = `
+                    <div class="run-detail-header">
+                        <button class="btn" onclick="backToRunsList()" style="background: #fef6e4; padding: 0.5rem 1rem; margin-bottom: 1rem;">
+                            &lt; BACK TO LOGS
+                        </button>
+                        
+                        <div class="run-metadata-panel">
+                            <div class="run-metadata-title">
+                                ${isTopPerformer ? '🏆 ' : ''}RUN DETAILS
+                            </div>
+                            
+                            <div class="run-metadata-grid">
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Run ID</div>
+                                    <div class="run-metadata-value">${data.eval?.run_id || logName}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Benchmark</div>
+                                    <div class="run-metadata-value">${taskName}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Model</div>
+                                    <div class="run-metadata-value">${modelName}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Provider</div>
+                                    <div class="run-metadata-value">${provider}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Run Date</div>
+                                    <div class="run-metadata-value">${runDate ? runDate.toLocaleString() : 'N/A'}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Samples Evaluated</div>
+                                    <div class="run-metadata-value">${totalSamples}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Duration</div>
+                                    <div class="run-metadata-value">${duration ? (duration / 60).toFixed(1) + ' min' : 'N/A'}</div>
+                                </div>
+                                
+                                <div class="run-metadata-item">
+                                    <div class="run-metadata-label">Configuration</div>
+                                    <div class="run-metadata-value">
+                                        ${data.eval?.config ? Object.entries(data.eval.config).map(([k, v]) => `${k}: ${v}`).join(', ') : 'Default'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="run-score-panel">
+                                <div class="run-score-main">
+                                    <div class="run-score-label">Overall Score</div>
+                                    <div class="run-score-value">${score ? score.percentage + '%' : 'N/A'}</div>
+                                </div>
+                                <div class="run-score-details">
+                                    <div>
+                                        <strong>Accuracy:</strong> ${score ? `${score.correct}/${score.total}` : 'N/A'}
+                                    </div>
+                                    <div>
+                                        <strong>Success Rate:</strong> ${score ? score.percentage + '%' : 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${!isTopPerformer && topScore ? `
+                        <div class="comparison-context-panel">
+                            <div class="comparison-context-header">📊 COMPARISON CONTEXT</div>
+                            <div class="comparison-context-content">
+                                <div class="comparison-context-item">
+                                    <strong>Ranking:</strong> #${ranking} of ${similarRuns.length} runs
+                                </div>
+                                <div class="comparison-context-item">
+                                    <strong>Top Performer:</strong> ${topScore.percentage}% (${extractModelProvider(topRun).model})
+                                </div>
+                                <div class="comparison-context-item">
+                                    <strong>Performance Delta:</strong> ${score ? (parseFloat(score.percentage) - parseFloat(topScore.percentage)).toFixed(1) : 'N/A'}%
+                                </div>
+                            </div>
+                            <button class="btn" onclick="showComparisonModal('${logName}')" style="background: #8bd3dd; margin-top: 1rem;">
+                                Compare with Other Models
+                            </button>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="run-actions-panel">
+                            <button class="btn" onclick="rerunWithSameConfig('${logName}')" style="background: #f3d2c1;">
+                                🔄 Re-run with Same Config
+                            </button>
+                            <button class="btn" onclick="showComparisonModal('${logName}')" style="background: #8bd3dd;">
+                                📊 Compare with Other Models
+                            </button>
+                            <button class="btn" onclick="exportResults('${logName}')" style="background: #fef6e4;">
+                                📥 Export Results
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h2 style="margin: 2rem 0 1rem; color: #f582ae; font-size: 1.5rem;">TRAJECTORIES (${totalSamples})</h2>
+                `;
+                
+                if (data.samples && data.samples.length > 0) {
+                    data.samples.forEach((sample, idx) => {
+                        const scoreSummary = getScoreSummary(sample);
+                        const passed = scoreSummary.passed;
+                        
+                        html += `
+                            <div class="trajectory-item" onclick="viewTrajectory(${idx})">
+                                <div>
+                                    <strong>&gt; Task ${sample.id}</strong>
+                                </div>
+                                <div class="trajectory-badges">
+                                    <span class="badge ${passed ? 'badge-passed' : 'badge-failed'}">
+                                        ${passed ? 'Successful' : 'Fail'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                runDetailContent.innerHTML = html;
+            } catch (error) {
+                runDetailContent.innerHTML = `<p style="color: #f582ae;">Error loading run: ${error.message}</p>`;
+            }
+        }
+
+        function rerunWithSameConfig(logName) {
+            alert('Re-run feature coming soon! This will re-run the evaluation with the same configuration.');
+        }
+
+        function exportResults(logName) {
+            if (!currentLogData) return;
+            
+            const dataStr = JSON.stringify(currentLogData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${logName}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        let comparisonSelectedModels = new Set();
+        let comparisonBenchmarkName = '';
+
+        function showComparisonModal(logName) {
+            const overlay = document.getElementById('comparisonOverlay');
+            const selector = document.getElementById('comparisonSelector');
+            const benchmarkLabel = document.getElementById('comparisonBenchmark');
+            const closeBtn = document.getElementById('closeComparisonBtn');
+            
+            if (!overlay || !selector) return;
+            
+            // Extract benchmark name from current log
+            comparisonBenchmarkName = extractTaskName(logName);
+            if (benchmarkLabel) {
+                const benchmarkConfig = BENCHMARK_CONFIG[comparisonBenchmarkName] || { title: comparisonBenchmarkName };
+                benchmarkLabel.textContent = benchmarkConfig.title || comparisonBenchmarkName;
+            }
+            
+            // Find all runs for this benchmark
+            const benchmarkRuns = logsCache.filter(log => extractTaskName(log.name) === comparisonBenchmarkName);
+            
+            // Pre-select current model and top performer
+            comparisonSelectedModels.clear();
+            comparisonSelectedModels.add(logName);
+            
+            // Find top performer
+            const sortedRuns = [...benchmarkRuns].sort((a, b) => {
+                const scoreA = calculateScore(a.detail);
+                const scoreB = calculateScore(b.detail);
+                if (!scoreA) return 1;
+                if (!scoreB) return -1;
+                return parseFloat(scoreB.percentage) - parseFloat(scoreA.percentage);
+            });
+            
+            if (sortedRuns.length > 0 && sortedRuns[0].name !== logName) {
+                comparisonSelectedModels.add(sortedRuns[0].name);
+            }
+            
+            // Render model selector
+            let html = '';
+            benchmarkRuns.forEach(run => {
+                const { model, provider } = extractModelProvider(run);
+                const score = calculateScore(run.detail);
+                const scoreDisplay = score ? `${score.percentage}%` : 'N/A';
+                const isSelected = comparisonSelectedModels.has(run.name);
+                
+                html += `
+                    <label class="comparison-model-option">
+                        <input type="checkbox" 
+                               value="${run.name}" 
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleComparisonModel('${run.name}', this.checked)">
+                        <span class="comparison-model-info">
+                            <strong>${model}</strong>
+                            <span class="comparison-model-meta">${provider} • Score: ${scoreDisplay}</span>
+                        </span>
+                    </label>
+                `;
+            });
+            
+            selector.innerHTML = html;
+            
+            // Set up close button
+            if (closeBtn) {
+                closeBtn.onclick = closeComparisonModal;
+            }
+            
+            // Show overlay
+            overlay.style.display = 'flex';
+            document.body.dataset.overlay = 'comparison';
+            
+            // Generate initial comparison
+            updateComparisonTable();
+        }
+
+        function toggleComparisonModel(logName, checked) {
+            if (checked) {
+                if (comparisonSelectedModels.size >= 5) {
+                    alert('You can compare up to 5 models at once.');
+                    event.target.checked = false;
+                    return;
+                }
+                comparisonSelectedModels.add(logName);
+            } else {
+                if (comparisonSelectedModels.size <= 2) {
+                    alert('Please select at least 2 models to compare.');
+                    event.target.checked = true;
+                    return;
+                }
+                comparisonSelectedModels.delete(logName);
+            }
+            
+            updateComparisonTable();
+        }
+
+        function updateComparisonTable() {
+            const table = document.getElementById('comparisonTable');
+            if (!table) return;
+            
+            const thead = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+            
+            if (comparisonSelectedModels.size < 2) {
+                thead.innerHTML = `
+                    <th>Metric</th>
+                    <th class="comparison-placeholder">Select at least two models</th>
+                `;
+                tbody.innerHTML = '';
+                return;
+            }
+            
+            // Get data for selected models
+            const selectedRuns = Array.from(comparisonSelectedModels).map(logName => {
+                return logsCache.find(log => log.name === logName);
+            }).filter(Boolean);
+            
+            // Build table header
+            let headerHTML = '<th>Metric</th>';
+            selectedRuns.forEach(run => {
+                const { model } = extractModelProvider(run);
+                headerHTML += `<th>${model}</th>`;
+            });
+            thead.innerHTML = headerHTML;
+            
+            // Build table body
+            const metrics = [
+                { label: 'Overall Score', key: 'score', format: (v) => v ? v.percentage + '%' : 'N/A', highlight: true },
+                { label: 'Accuracy', key: 'accuracy', format: (v) => v || 'N/A' },
+                { label: 'Samples Used', key: 'samples', format: (v) => v || 'N/A' },
+                { label: 'Duration', key: 'duration', format: (v) => v ? (v / 60).toFixed(1) + ' min' : 'N/A' },
+                { label: 'Run Date', key: 'date', format: (v) => v ? new Date(v).toLocaleString() : 'N/A' }
+            ];
+            
+            let bodyHTML = '';
+            metrics.forEach(metric => {
+                bodyHTML += `<tr><td class="comparison-metric-label">${metric.label}</td>`;
+                
+                const values = selectedRuns.map(run => {
+                    const detail = run.detail;
+                    let value;
+                    
+                    switch (metric.key) {
+                        case 'score':
+                            value = calculateScore(detail);
+                            break;
+                        case 'accuracy':
+                            const score = calculateScore(detail);
+                            value = score ? `${score.correct}/${score.total}` : null;
+                            break;
+                        case 'samples':
+                            value = detail.samples?.length;
+                            break;
+                        case 'duration':
+                            value = detail.eval?.duration;
+                            break;
+                        case 'date':
+                            value = detail.eval?.created;
+                            break;
+                    }
+                    
+                    return { value, formatted: metric.format(value) };
+                });
+                
+                // Find best value for highlighting
+                let bestIndex = -1;
+                if (metric.highlight && metric.key === 'score') {
+                    let bestScore = -1;
+                    values.forEach((v, idx) => {
+                        if (v.value && parseFloat(v.value.percentage) > bestScore) {
+                            bestScore = parseFloat(v.value.percentage);
+                            bestIndex = idx;
+                        }
+                    });
+                }
+                
+                values.forEach((v, idx) => {
+                    const isBest = idx === bestIndex;
+                    bodyHTML += `<td class="${isBest ? 'comparison-best-value' : ''}">${v.formatted}</td>`;
+                });
+                
+                bodyHTML += '</tr>';
+            });
+            
+            tbody.innerHTML = bodyHTML;
+        }
+
+        function closeComparisonModal() {
+            const overlay = document.getElementById('comparisonOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            comparisonSelectedModels.clear();
+            if (document.body.dataset.overlay === 'comparison') {
+                document.body.dataset.overlay = '';
+            }
+        }
+
+        function viewRunFromActivity(logName) {
+            switchTab('logs');
+            setTimeout(() => viewRun(logName), 100);
+        }
+
+        function viewTrajectory(trajectoryIndex) {
+            if (!currentLogData || !currentLogData.samples) return;
+            
+            currentTrajectoryIndex = trajectoryIndex;
+            const sample = currentLogData.samples[trajectoryIndex];
+            
+            document.getElementById('runDetailView').style.display = 'none';
+            document.getElementById('trajectoryDetailView').style.display = 'block';
+            
+            const content = document.getElementById('trajectoryDetailContent');
+            content.innerHTML = buildTrajectoryView(sample, trajectoryIndex);
+        }
+
+        function buildTrajectoryView(sample, index) {
+            const totalSamples = currentLogData.samples.length;
+            const scoreSummary = getScoreSummary(sample);
+            const scoreValue = scoreSummary.value;
+            const passed = scoreSummary.passed;
+            
+            let html = `
+                <div class="trajectory-header">
+                    <button class="btn" onclick="backToRun()" style="background: #fef6e4; padding: 0.5rem 1rem;">
+                        &lt; BACK TO RUN
+                    </button>
+                    <div class="trajectory-nav">
+                        <span class="page-counter">${index + 1} of ${totalSamples}</span>
+                        <button class="btn-nav" onclick="prevTrajectory()" ${index === 0 ? 'disabled' : ''}>
+                            &lt; Prev
+                        </button>
+                        <button class="btn-nav" onclick="nextTrajectory()" ${index === totalSamples - 1 ? 'disabled' : ''}>
+                            Next &gt;
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="trajectory-summary">
+                    <div class="trajectory-summary-title">TRAJECTORY SUMMARY</div>
+                    <div class="trajectory-meta">
+                        <div class="trajectory-meta-item">
+                            <strong>Task ID:</strong>
+                            <span>${sample.id}</span>
+                        </div>
+                        <div class="trajectory-meta-item">
+                            <strong>Status:</strong>
+                            <span>${passed ? 'Successful ✅' : 'Failed ❌'}</span>
+                        </div>
+                        <div class="trajectory-meta-item">
+                            <strong>Score:</strong>
+                            <span>${scoreValue !== undefined ? scoreValue : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <details class="task-description" open>
+                    <summary>TASK DESCRIPTION</summary>
+                    <div class="task-description-body">${formatTaskDescription(sample.input)}</div>
+                </details>
+            `;
+            
+            // Add answer comparison section
+            html += buildAnswerComparisonSection(sample);
+            
+            // Process messages into steps
+            if (sample.messages && sample.messages.length > 0) {
+                let stepNum = 0;
+                let currentStep = [];
+                
+                for (let i = 0; i < sample.messages.length; i++) {
+                    const msg = sample.messages[i];
+                    
+                    // Skip system messages
+                    if (msg.role === 'system') continue;
+                    
+                    // Skip initial user message (it's the task description)
+                    if (msg.role === 'user' && msg.source === 'input') continue;
+                    
+                    // Start new step on assistant messages
+                    if (msg.role === 'assistant') {
+                        if (currentStep.length > 0) {
+                            stepNum++;
+                            html += buildStepHTML(stepNum - 1, currentStep);
+                            currentStep = [];
+                        }
+                    }
+                    
+                    currentStep.push(msg);
+                    
+                    // Also grab tool responses that follow
+                    while (i + 1 < sample.messages.length && sample.messages[i + 1].role === 'tool') {
+                        i++;
+                        currentStep.push(sample.messages[i]);
+                    }
+                }
+                
+                // Add final step
+                if (currentStep.length > 0) {
+                    stepNum++;
+                    html += buildStepHTML(stepNum - 1, currentStep);
+                }
+            }
+            
+            // Add final submission section
+            html += buildSubmissionSection(sample);
+            
+            return html;
+        }
+
+        function buildAnswerComparisonSection(sample) {
+            let submitCall = null;
+            let explanation = '';
+            
+            if (sample.messages) {
+                for (let i = sample.messages.length - 1; i >= 0; i--) {
+                    const msg = sample.messages[i];
+                    if (msg.role === 'assistant' && msg.tool_calls) {
+                        for (const toolCall of msg.tool_calls) {
+                            if (toolCall.function === 'submit') {
+                                submitCall = toolCall;
+                                const textContent = extractTextContent(msg.content);
+                                if (textContent) {
+                                    explanation = textContent;
+                                }
+                                break;
+                            }
+                        }
+                        if (submitCall) break;
+                    }
+                }
+            }
+            
+            const scoreSummary = getScoreSummary(sample);
+            const scoreData = scoreSummary.data;
+            const scoreValue = scoreSummary.value;
+            const passed = scoreSummary.passed;
+
+            if (scoreData && scoreData.explanation && !explanation) {
+                explanation = scoreData.explanation;
+            }
+
+            const reasoningSteps = extractReasoningFromMessages(sample.messages);
+
+            let llmAnswer;
+            if (scoreData && typeof scoreData === 'object' && scoreData.answer !== undefined) {
+                llmAnswer = scoreData.answer;
+            } else if (sample.store && typeof sample.store === 'object' && sample.store.answer !== undefined) {
+                llmAnswer = sample.store.answer;
+            } else if (submitCall?.arguments?.answer) {
+                llmAnswer = submitCall.arguments.answer;
+            } else if (sample.output && typeof sample.output === 'string') {
+                llmAnswer = sample.output;
+            } else {
+                llmAnswer = 'No answer submitted';
+            }
+            
+            const correctAnswer = sample.target || 'N/A';
+            
+            return `
+                <div class="answer-comparison-section">
+                    <div class="answer-comparison-header">
+                        🎯 ANSWER COMPARISON
+                    </div>
+                    
+                    ${reasoningSteps.length ? `
+                    <details class="reasoning-section">
+                        <summary class="reasoning-toggle">🧠 Agent Reasoning (${reasoningSteps.length})</summary>
+                        <div class="reasoning-content">
+                            ${reasoningSteps.map((step, idx) => `
+                                <div class="reasoning-step">
+                                    <span class="reasoning-step-index">Step ${idx + 1}</span>
+                                    <div class="reasoning-step-body">${escapeHtml(step)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </details>
+                    ` : ''}
+                    
+                    <div class="comparison-grid">
+                        <div class="comparison-box correct-answer">
+                            <div class="comparison-label">✓ CORRECT ANSWER</div>
+                            <div class="comparison-value">${escapeHtml(correctAnswer)}</div>
+                        </div>
+                        
+                        <div class="comparison-box llm-answer ${passed ? 'llm-answer-correct' : 'llm-answer-wrong'}">
+                            <div class="comparison-label">${passed ? '✅ LLM ANSWER' : '❌ LLM ANSWER'}</div>
+                            <div class="comparison-value">${escapeHtml(String(llmAnswer))}</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            `;
+        }
+
+        function buildSubmissionSection(sample) {
+            let submitCall = null;
+            
+            if (sample.messages) {
+                for (const msg of sample.messages) {
+                    if (msg.role === 'assistant' && msg.tool_calls) {
+                        for (const toolCall of msg.tool_calls) {
+                            if (toolCall.function === 'submit') {
+                                submitCall = toolCall;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!submitCall) return '';
+            
+            const scoreSummary = getScoreSummary(sample);
+            const scoreValue = scoreSummary.value;
+            const passed = scoreSummary.passed;
+            
+            return `
+                <div class="submission-section">
+                    <div class="submission-section-header">
+                        📝 FINAL SUBMISSION
+                    </div>
+                    <div class="submission-block">
+                        <div class="submission-header">
+                            🎯 AGENT ANSWER
+                        </div>
+                        <div class="submission-content">
+                            ${formatToolArguments(submitCall.arguments, 'submit')}
+                        </div>
+                    </div>
+                    <div class="submission-result ${passed ? 'submission-success' : 'submission-fail'}">
+                        <div class="submission-result-header">
+                            ${passed ? '✅ SUBMISSION SUCCESSFUL' : '❌ SUBMISSION FAILED'}
+                        </div>
+                        <div class="submission-result-content">
+                            <strong>Expected:</strong> ${escapeHtml(sample.target || 'N/A')}<br>
+                            <strong>Got:</strong> ${submitCall.arguments?.answer ? escapeHtml(String(submitCall.arguments.answer)) : 'N/A'}<br>
+                            <strong>Score:</strong> ${scoreValue !== undefined ? scoreValue : 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function buildStepHTML(stepIndex, messages) {
+            const stepId = `step-${stepIndex}`;
+            let html = `
+                <div class="step-container">
+                    <div class="step-header" onclick="toggleStep('${stepId}')" style="cursor: pointer;">
+                        <span>STEP ${stepIndex + 1}</span>
+                        <span class="step-toggle" id="${stepId}-toggle">EXPAND</span>
+                    </div>
+                    <div class="step-content collapsed" id="${stepId}">
+            `;
+            
+            messages.forEach((msg) => {
+                if (msg.role === 'assistant') {
+                    const reasoningParts = extractReasoningPartsFromContent(msg.content);
+                    reasoningParts.forEach(reasoningText => {
+                        html += `
+                            <div class="reasoning-block">
+                                <div class="reasoning-label">🤔 AGENT REASONING</div>
+                                <div>${escapeHtml(reasoningText)}</div>
+                            </div>
+                        `;
+                    });
+
+                    const textContent = extractTextContent(msg.content).trim();
+                    if (textContent) {
+                        html += `
+                            <div class="reasoning-block" style="background: #eef2ff; border-color: #c7d2fe;">
+                                <div class="reasoning-label" style="color: #312e81;">🗨️ ASSISTANT OUTPUT</div>
+                                <div>${escapeHtml(textContent)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (msg.tool_calls && msg.tool_calls.length > 0) {
+                        msg.tool_calls.forEach((toolCall) => {
+                            const isSubmit = toolCall.function === 'submit';
+                            if (!isSubmit) {
+                                html += `
+                                    <div class="tool-call-block">
+                                        <div class="tool-call-header">
+                                            🔧 ${toolCall.function.toUpperCase()}
+                                        </div>
+                                        <div class="tool-call-code">
+                                            ${formatToolArguments(toolCall.arguments, toolCall.function)}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                } else if (msg.role === 'tool') {
+                    if (msg.function !== 'submit') {
+                        html += `
+                            <div class="tool-response-block">
+                                <div class="tool-response-header">
+                                    📤 ${msg.function ? msg.function.toUpperCase() : 'TOOL'} OUTPUT
+                                </div>
+                                <div class="tool-response-content">
+                                    ${escapeHtml(msg.content || '')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            return html;
+        }
+
+        function getScoreSummary(sample) {
+            const summary = {
+                scorerKey: null,
+                data: null,
+                value: undefined,
+                passed: false
+            };
+
+            if (sample && sample.scores && typeof sample.scores === 'object') {
+                for (const [key, entry] of Object.entries(sample.scores)) {
+                    if (entry === undefined || entry === null) continue;
+                    summary.scorerKey = key;
+                    summary.data = typeof entry === 'object' ? entry : { value: entry };
+                    break;
+                }
+            }
+
+            if (!summary.data && sample && sample.score !== undefined) {
+                if (sample.score && typeof sample.score === 'object') {
+                    summary.data = sample.score;
+                } else {
+                    summary.data = { value: sample.score };
+                }
+            }
+
+            if (summary.data) {
+                summary.value = summary.data.value !== undefined ? summary.data.value : summary.data;
+                summary.passed = summary.value === 'C' || summary.value === 'Correct' || summary.value === 1 || summary.value === true;
+            }
+
+            return summary;
+        }
+
+        function extractReasoningPartsFromContent(content) {
+            if (!Array.isArray(content)) return [];
+            return content
+                .filter(part => part && part.type === 'reasoning' && part.reasoning)
+                .map(part => part.reasoning);
+        }
+
+        function formatTaskDescription(text) {
+            if (!text) {
+                return '<p>No description available</p>';
+            }
+
+            const escaped = escapeHtml(text);
+
+            if (escaped.includes('\n')) {
+                return `
+                    <pre>${escaped}</pre>
+                `;
+            }
+
+            return `<p>${escaped}</p>`;
+        }
+
+        function extractReasoningFromMessages(messages) {
+            if (!Array.isArray(messages)) return [];
+            const reasoningSteps = [];
+
+            messages.forEach(msg => {
+                if (msg.role !== 'assistant' || !Array.isArray(msg.content)) return;
+                const parts = extractReasoningPartsFromContent(msg.content);
+                reasoningSteps.push(...parts);
+            });
+
+            return reasoningSteps;
+        }
+
+        function extractTextContent(content) {
+            if (typeof content === 'string') return content;
+            if (Array.isArray(content)) {
+                return content
+                    .filter(item => item.type === 'text')
+                    .map(item => item.text)
+                    .join('\n');
+            }
+            return '';
+        }
+
+        function formatToolArguments(args, functionName) {
+            if (!args) return '';
+            
+            if (functionName === 'submit') {
+                return escapeHtml(JSON.stringify(args, null, 2));
+            }
+            
+            if (args.code) {
+                return escapeHtml(args.code);
+            }
+            
+            return escapeHtml(JSON.stringify(args, null, 2));
+        }
+
+        function toggleStep(stepId) {
+            const stepContent = document.getElementById(stepId);
+            const toggleBtn = document.getElementById(`${stepId}-toggle`);
+            
+            if (stepContent.classList.contains('collapsed')) {
+                stepContent.classList.remove('collapsed');
+                toggleBtn.textContent = 'COLLAPSE';
+            } else {
+                stepContent.classList.add('collapsed');
+                toggleBtn.textContent = 'EXPAND';
+            }
+        }
+
+        function backToRunsList() {
+            const hierarchyView = document.getElementById('logsHierarchyView');
+            const runDetailView = document.getElementById('runDetailView');
+            const trajectoryDetailView = document.getElementById('trajectoryDetailView');
+
+            if (hierarchyView) hierarchyView.style.display = 'block';
+            if (runDetailView) runDetailView.style.display = 'none';
+            if (trajectoryDetailView) trajectoryDetailView.style.display = 'none';
+        }
+
+        function backToRun() {
+            document.getElementById('runDetailView').style.display = 'block';
+            document.getElementById('trajectoryDetailView').style.display = 'none';
+        }
+
+        function prevTrajectory() {
+            if (currentTrajectoryIndex > 0) {
+                viewTrajectory(currentTrajectoryIndex - 1);
+            }
+        }
+
+        function nextTrajectory() {
+            if (currentLogData && currentTrajectoryIndex < currentLogData.samples.length - 1) {
+                viewTrajectory(currentTrajectoryIndex + 1);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+
