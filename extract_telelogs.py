@@ -142,26 +142,10 @@ def process_dataset():
         df.to_parquet(parquet_path, index=False)
         print(f"Saved to {parquet_path}")
 
-        # Save a README with dataset info
-        readme_path = "telelogs/README.md"
-        with open(readme_path, 'w') as f:
-            f.write("# TeleLogs Dataset (Processed)\n\n")
-            f.write("This dataset has been extracted from HuggingFace and processed into MCQ format.\n\n")
-            f.write("## Transformations Applied\n\n")
-            f.write("1. **Answer column**: Removed 'C' prefix, keeping only the number (C4 -> 4)\n")
-            f.write("2. **Choices column**: Extracted 8 choices from questions into an array\n")
-            f.write("3. **Question column**: Removed template text and choice options\n\n")
-            f.write(f"## Dataset Info\n\n")
-            f.write(f"- Number of samples: {len(df)}\n")
-            f.write(f"- Columns: {', '.join(df.columns.tolist())}\n\n")
-            f.write(f"## Files\n\n")
-            f.write(f"- `telelogs_test.csv`: CSV format\n")
-            f.write(f"- `telelogs_test.json`: JSON format\n")
-            f.write(f"- `telelogs_test.parquet`: Parquet format (recommended for large datasets)\n")
-        print(f"Saved README to {readme_path}")
-
         print("\n=== Processing complete! ===")
         print(f"Total samples processed: {len(df)}")
+        print("\nNote: README.md with dataset card already exists in telelogs/")
+        print("Upload to HuggingFace with: python upload_telelogs.py")
 
         return df
 

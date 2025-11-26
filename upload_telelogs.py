@@ -15,7 +15,7 @@ if not HF_TOKEN:
     )
 
 def upload_dataset():
-    """Upload the processed TeleLogs dataset to HuggingFace."""
+    """Upload the processed TeleLogs dataset to HuggingFace (JSON + README only)."""
 
     # Initialize HuggingFace API
     api = HfApi(token=HF_TOKEN)
@@ -30,12 +30,18 @@ def upload_dataset():
         )
 
     # Check if required files exist
-    required_files = ["telelogs_test.parquet", "telelogs_test.json", "telelogs_test.csv"]
-    missing_files = [f for f in required_files if not (dataset_folder / f).exists()]
+    json_file = dataset_folder / "telelogs_test.json"
+    readme_file = dataset_folder / "README.md"
 
-    if missing_files:
-        print(f"Warning: Missing files: {missing_files}")
-        print("Make sure extract_telelogs.py completed successfully.")
+    if not json_file.exists():
+        raise FileNotFoundError(
+            f"JSON file not found: {json_file}\n"
+            "Please run extract_telelogs.py first."
+        )
+
+    if not readme_file.exists():
+        print(f"Warning: README.md not found at {readme_file}")
+        print("Dataset card will not be displayed properly on HuggingFace.")
 
     print("=" * 60)
     print("Uploading TeleLogs dataset to HuggingFace")
@@ -43,25 +49,38 @@ def upload_dataset():
     print(f"Source folder: {dataset_folder.absolute()}")
     print(f"Target repository: eaguaida/telelogs")
     print(f"Repository type: dataset")
+    print(f"\nFiles to upload:")
+    print(f"  - telelogs_test.json (data)")
+    print(f"  - README.md (dataset card with YAML metadata)")
     print()
 
     try:
-        # Upload the entire folder to HuggingFace
-        api.upload_folder(
-            folder_path=str(dataset_folder),
-            repo_id="eaguaida/telelogs",
-            repo_type="dataset",
-            commit_message="Upload processed TeleLogs dataset with MCQ format"
-        )
+        # Upload only JSON and README
+        files_to_upload = [
+            ("telelogs_test.json", str(json_file)),
+            ("README.md", str(readme_file))
+        ]
 
+        for path_in_repo, local_path in files_to_upload:
+            if Path(local_path).exists():
+                api.upload_file(
+                    path_or_fileobj=local_path,
+                    path_in_repo=path_in_repo,
+                    repo_id="eaguaida/telelogs",
+                    repo_type="dataset",
+                    commit_message=f"Upload {path_in_repo}"
+                )
+                print(f"✅ Uploaded: {path_in_repo}")
+
+        print()
         print("✅ Dataset uploaded successfully!")
         print()
         print("View your dataset at: https://huggingface.co/datasets/eaguaida/telelogs")
         print()
-        print("Files uploaded:")
-        for file in dataset_folder.iterdir():
-            if file.is_file():
-                print(f"  - {file.name}")
+        print("The dataset card should now display with:")
+        print("  - Proper YAML metadata")
+        print("  - Dataset description and structure")
+        print("  - Usage examples")
 
     except Exception as e:
         print(f"❌ Error uploading dataset: {e}")
