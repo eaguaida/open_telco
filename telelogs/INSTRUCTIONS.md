@@ -55,15 +55,17 @@ The script performs these transformations on the test split:
    - Before: `C8` -> After: `7`
    - This matches the array indexing of the choices
 
-2. **Choices column** (new): Extracts 8 choices from question text
-   - Parses choices formatted as `C1: content`, `C2: content`, etc.
+2. **Choices column** (new): Extracts 8 choices cleanly from question text
+   - Parses choices formatted as `C1: content`, `C2: content`, ..., `C8: content`
+   - For C8, stops at `\n\n` which separates the choice from actual question data
    - Creates array: `["choice1", "choice2", ..., "choice8"]`
    - Choices are indexed 0-7 in the array
 
-3. **Question column**: Removes template and choices
-   - Removes the instruction template
-   - Removes the choice listing (C1-C8)
-   - Keeps only the actual question/data
+3. **Question column**: Extracts actual question data only
+   - **Removes** the instruction template completely (e.g., "Analyze the 5G wireless network...")
+   - **Removes** the choice listing (C1-C8)
+   - **Keeps only** the actual question data after `\n\n` following C8
+   - Typically starts with "Given:" and includes all data tables
 
 ## Output Files
 

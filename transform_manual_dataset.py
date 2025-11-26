@@ -10,11 +10,15 @@ from pathlib import Path
 def extract_choices_from_question(question_text):
     """
     Extract the 8 choices (C1-C8) from the question text.
+    For C8, stops at \n\n which separates the choice from the actual question data.
     Returns a list of 8 choice contents.
     """
     choices = []
-    # Pattern to match C1: content, C2: content, etc.
-    pattern = r'C(\d):\s*(.*?)(?=\nC\d:|$)'
+
+    # Pattern to match C1: through C8:
+    # For C1-C7: content until next C digit or C8
+    # For C8: content until \n\n (which marks start of actual question)
+    pattern = r'C(\d):\s*(.*?)(?=\nC\d:|\n\n|$)'
 
     matches = re.findall(pattern, question_text, re.DOTALL)
 
@@ -28,18 +32,23 @@ def extract_choices_from_question(question_text):
 
     return choices
 
-def remove_template_from_question(question_text):
+def extract_actual_question(question_text):
     """
-    Remove the template text and choices from the question,
-    leaving only the actual question/data content.
+    Extract the actual question data (everything after \n\n following C8).
+    This typically starts with "Given:" and contains the data tables.
+    Removes the template instruction and choices completely.
     """
-    # Find the position where choices start (first occurrence of C1:)
-    match = re.search(r'\nC1:', question_text)
+    # Find where C8 ends and the actual question begins (marked by \n\n)
+    # Look for C8: ... \n\n<actual question>
+    match = re.search(r'C8:.*?\n\n(.+)', question_text, re.DOTALL)
+
     if match:
-        # Keep everything before the choices
-        cleaned_question = question_text[:match.start()].strip()
-        return cleaned_question
+        # Extract everything after the \n\n
+        actual_question = match.group(1).strip()
+        return actual_question
     else:
+        # Fallback: if pattern not found, return empty or original
+        print("Warning: Could not find actual question data after C8")
         return question_text.strip()
 
 def transform_answer(answer):
@@ -105,9 +114,9 @@ def process_manual_dataset(input_path, output_dir="telelogs"):
     print("2. Extracting choices...")
     df['choices'] = df['question'].apply(extract_choices_from_question)
 
-    # 3. Clean questions column
-    print("3. Cleaning questions column...")
-    df['question'] = df['question'].apply(remove_template_from_question)
+    # 3. Extract actual question data (after C8 and \n\n)
+    print("3. Extracting actual question data...")
+    df['question'] = df['question'].apply(extract_actual_question)
 
     # Show a sample after transformation
     print("\n=== Sample after transformation ===")
