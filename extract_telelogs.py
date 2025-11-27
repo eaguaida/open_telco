@@ -202,8 +202,8 @@ def process_dataset(apply_markdown_kv: bool = False):
         # Save to different formats
         print("\n=== Saving dataset ===")
 
-        # Add suffix for Markdown-KV format
-        suffix = "_mkv" if apply_markdown_kv else ""
+        # Add suffix for non-markdown format (plain pipe-delimited)
+        suffix = "" if apply_markdown_kv else "_plain"
 
         # Save as CSV
         csv_path = f"telelogs_markdown/telelogs_test{suffix}.csv"
@@ -235,26 +235,26 @@ def process_dataset(apply_markdown_kv: bool = False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Extract and process TeleLogs dataset from HuggingFace",
+        description="Extract and transform TeleLogs dataset from HuggingFace to Markdown-KV format",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Extract in standard format
+  # Extract with Markdown-KV transformation (default, improved LLM comprehension)
   python extract_telelogs.py
 
-  # Extract with Markdown-KV transformation (improved LLM comprehension)
-  python extract_telelogs.py --markdown-kv
+  # Extract in standard pipe-delimited format (not recommended)
+  python extract_telelogs.py --no-markdown-kv
 
 The Markdown-KV format achieves ~60% accuracy vs ~41-44% for pipe-delimited
-format in LLM table understanding benchmarks.
+format in LLM table understanding benchmarks. This is now the default.
         """
     )
 
     parser.add_argument(
-        '--markdown-kv',
+        '--no-markdown-kv',
         action='store_true',
-        help='Transform questions to Markdown-KV format for improved LLM comprehension'
+        help='Skip Markdown-KV transformation (keeps original pipe-delimited format)'
     )
 
     args = parser.parse_args()
-    df = process_dataset(apply_markdown_kv=args.markdown_kv)
+    df = process_dataset(apply_markdown_kv=not args.no_markdown_kv)

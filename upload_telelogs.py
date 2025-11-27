@@ -15,11 +15,11 @@ if not HF_TOKEN:
         "export HF_TOKEN=your_token_here"
     )
 
-def upload_dataset(markdown_kv: bool = False, repo_id: str = "eaguaida/telelogs"):
+def upload_dataset(plain_format: bool = False, repo_id: str = "eaguaida/telelogs"):
     """Upload the processed TeleLogs dataset to HuggingFace (JSON + README only).
 
     Args:
-        markdown_kv: If True, upload the Markdown-KV formatted version (_mkv files)
+        plain_format: If True, upload the plain pipe-delimited version (_plain files)
         repo_id: HuggingFace repository ID to upload to
     """
 
@@ -36,21 +36,21 @@ def upload_dataset(markdown_kv: bool = False, repo_id: str = "eaguaida/telelogs"
         )
 
     # Determine which file to upload based on format
-    suffix = "_mkv" if markdown_kv else ""
+    suffix = "_plain" if plain_format else ""
     json_file = dataset_folder / f"telelogs_test{suffix}.json"
     readme_file = dataset_folder / "README.md"
 
     if not json_file.exists():
         raise FileNotFoundError(
             f"JSON file not found: {json_file}\n"
-            f"Please run: python extract_telelogs.py{' --markdown-kv' if markdown_kv else ''}"
+            f"Please run: python extract_telelogs.py{' --no-markdown-kv' if plain_format else ''}"
         )
 
     if not readme_file.exists():
         print(f"Warning: README.md not found at {readme_file}")
         print("Dataset card will not be displayed properly on HuggingFace.")
 
-    format_name = "Markdown-KV" if markdown_kv else "Standard"
+    format_name = "Plain pipe-delimited" if plain_format else "Markdown-KV"
     print("=" * 60)
     print(f"Uploading TeleLogs dataset to HuggingFace ({format_name} format)")
     print("=" * 60)
@@ -89,7 +89,7 @@ def upload_dataset(markdown_kv: bool = False, repo_id: str = "eaguaida/telelogs"
         print("  - Proper YAML metadata")
         print("  - Dataset description and structure")
         print("  - Usage examples")
-        if markdown_kv:
+        if not plain_format:
             print("  - Markdown-KV formatted questions for improved LLM comprehension")
 
     except Exception as e:
@@ -98,25 +98,25 @@ def upload_dataset(markdown_kv: bool = False, repo_id: str = "eaguaida/telelogs"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Upload TeleLogs dataset to HuggingFace",
+        description="Upload TeleLogs Markdown-KV dataset to HuggingFace",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Upload standard format to eaguaida/telelogs
+  # Upload Markdown-KV format to eaguaida/telelogs (default, recommended)
   python upload_telelogs.py
 
-  # Upload Markdown-KV format to eaguaida/telelogs
-  python upload_telelogs.py --markdown-kv
+  # Upload plain pipe-delimited format (not recommended)
+  python upload_telelogs.py --plain
 
   # Upload to custom repository
-  python upload_telelogs.py --markdown-kv --repo-id myuser/my-telelogs
+  python upload_telelogs.py --repo-id myuser/my-telelogs
         """
     )
 
     parser.add_argument(
-        '--markdown-kv',
+        '--plain',
         action='store_true',
-        help='Upload the Markdown-KV formatted version (_mkv files)'
+        help='Upload the plain pipe-delimited version instead of Markdown-KV'
     )
 
     parser.add_argument(
@@ -126,4 +126,4 @@ Examples:
     )
 
     args = parser.parse_args()
-    upload_dataset(markdown_kv=args.markdown_kv, repo_id=args.repo_id)
+    upload_dataset(plain_format=args.plain, repo_id=args.repo_id)
