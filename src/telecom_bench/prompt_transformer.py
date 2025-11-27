@@ -266,25 +266,11 @@ def extract_domain_rules(text: str) -> str:
                         rules_section.append(f"- {rule}")
                 rules_section.append("")
 
-            # Format beam scenario rules
+            # Format beam scenario rules - keep original format
             if beam_rules:
-                rules_section.append("## Beam Scenario → Vertical Beamwidth")
-                # Track which rules have been added to avoid duplicates
-                added_rules = set()
+                rules_section.append("## Beam Scenario and Vertical Beamwidth Relationships")
                 for rule in beam_rules:
-                    # Parse beam scenario patterns
-                    if ("Default" in rule or "SCENARIO_1" in rule or "SCENARIO_5" in rule) and "6" not in added_rules:
-                        rules_section.append("- DEFAULT, SCENARIO_1–5 → 6°")
-                        added_rules.add("6")
-                    elif "SCENARIO_6" in rule and "12" not in added_rules:
-                        rules_section.append("- SCENARIO_6–11 → 12°")
-                        added_rules.add("12")
-                    elif "SCENARIO_12" in rule and "25" not in added_rules:
-                        rules_section.append("- SCENARIO_12+ → 25°")
-                        added_rules.add("25")
-                    elif rule not in added_rules:
-                        rules_section.append(f"- {rule}")
-                        added_rules.add(rule)
+                    rules_section.append(f"- {rule}")
                 rules_section.append("")
 
             # Format other rules
