@@ -27,7 +27,7 @@ def upload_dataset(markdown_kv: bool = False, repo_id: str = "eaguaida/telelogs"
     api = HfApi(token=HF_TOKEN)
 
     # Path to the processed dataset folder
-    dataset_folder = Path("telelogs")
+    dataset_folder = Path("telelogs_markdown")
 
     if not dataset_folder.exists():
         raise FileNotFoundError(

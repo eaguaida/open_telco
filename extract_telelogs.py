@@ -118,7 +118,7 @@ def process_dataset(apply_markdown_kv: bool = False):
     print("Loading dataset from HuggingFace...")
     try:
         # Load the dataset with authentication
-        ds = load_dataset("netop/TeleLogs", token=HF_TOKEN)
+        ds = load_dataset("eaguaida/telelogs", token=HF_TOKEN)
         print(f"Dataset loaded successfully!")
         print(f"Available splits: {list(ds.keys())}")
 
@@ -206,17 +206,17 @@ def process_dataset(apply_markdown_kv: bool = False):
         suffix = "_mkv" if apply_markdown_kv else ""
 
         # Save as CSV
-        csv_path = f"telelogs/telelogs_test{suffix}.csv"
+        csv_path = f"telelogs_markdown/telelogs_test{suffix}.csv"
         df.to_csv(csv_path, index=False)
         print(f"Saved to {csv_path}")
 
         # Save as JSON
-        json_path = f"telelogs/telelogs_test{suffix}.json"
+        json_path = f"telelogs_markdown/telelogs_test{suffix}.json"
         df.to_json(json_path, orient='records', indent=2)
         print(f"Saved to {json_path}")
 
         # Save as parquet (more efficient for large datasets)
-        parquet_path = f"telelogs/telelogs_test{suffix}.parquet"
+        parquet_path = f"telelogs_markdown/telelogs_test{suffix}.parquet"
         df.to_parquet(parquet_path, index=False)
         print(f"Saved to {parquet_path}")
 
@@ -224,7 +224,7 @@ def process_dataset(apply_markdown_kv: bool = False):
         print(f"Total samples processed: {len(df)}")
         if apply_markdown_kv:
             print(f"Format: Markdown-KV (improved LLM comprehension)")
-        print("\nNote: README.md with dataset card already exists in telelogs/")
+        print("\nNote: README.md with dataset card already exists in telelogs_markdown/")
         print("Upload to HuggingFace with: python upload_telelogs.py")
 
         return df
