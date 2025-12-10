@@ -1,4 +1,4 @@
-# Telecom Bench
+# Open Telco
 
 Collection of evals on telecommunications tasks.
 
@@ -60,21 +60,21 @@ Run evals from the command line:
 
 ```bash
 # TeleQnA
-inspect eval src/telecom_bench/benchmarks/teleqna/teleqna.py
+uv run inspect eval src/open_telco/teleqna/teleqna.py
 #TeleMath
-inspect eval src/telecom_bench/benchmarks/telemath/telemath.py
+uv run inspect eval src/open_telco/telemath/telemath.py
 #TeleLogs
-inspect eval src/telecom_bench/benchmarks/telelogs/telelogs.py
+uv run inspect eval src/open_telco/telelogs/telelogs.py
 ```
 
 With options:
 
 ```bash
 # Specific model
-inspect eval src/telecom_bench/benchmarks/telemath/telemath.py --model openai/gpt-4o
+uv run inspect eval src/open_telco/telemath/telemath.py --model openai/gpt-4o
 
 # Limit samples
-inspect eval src/telecom_bench/benchmarks/telemath/telemath.py --limit 10
+uv run inspect eval src/open_telco/telemath/telemath.py --limit 10
 ```
 
 **Alternative**: Use the [Inspect VS Code Extension](https://marketplace.visualstudio.com/items?itemName=inspect-ai.inspect) or run the Web UI with `python ui/app.py`
@@ -88,7 +88,7 @@ inspect eval src/telecom_bench/benchmarks/telemath/telemath.py --limit 10
   [Paper](https://arxiv.org/abs/2310.15051) | [Dataset](https://huggingface.co/datasets/netop/TeleQnA)
 
   ```bash
-  inspect eval src/telecom_bench/benchmarks/teleqna/teleqna.py
+  uv run inspect eval src/open_telco/teleqna/teleqna.py
   ```
 
 ### Mathematical Reasoning
@@ -98,7 +98,7 @@ inspect eval src/telecom_bench/benchmarks/telemath/telemath.py --limit 10
   [Paper](https://arxiv.org/abs/2506.10674) | [Dataset](https://huggingface.co/datasets/netop/TeleMath)
 
   ```bash
-  inspect eval src/telecom_bench/benchmarks/telemath/telemath.py
+  uv run inspect eval src/open_telco/telemath/telemath.py
   ```
 
   *Metrics: pass@1, const@16 (majority voting over 16 answers)*
@@ -110,7 +110,7 @@ inspect eval src/telecom_bench/benchmarks/telemath/telemath.py --limit 10
   [Paper](https://arxiv.org/abs/2507.21974) | [Dataset](https://huggingface.co/datasets/netop/TeleLogs)
 
   ```bash
-  inspect eval src/telecom_bench/benchmarks/telelogs/telelogs.py -T 4
+  uv run inspect eval src/open_telco/telelogs/telelogs.py -T 4
   ```
 
   *Metrics: pass@1 (averaged over N epochs), maj@4 (majority voting)*

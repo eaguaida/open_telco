@@ -4,22 +4,12 @@ from typing import Callable, Any, Union
 from inspect_ai.dataset import FieldSpec, hf_dataset, Sample
 
 
+from dotenv import load_dotenv
+
 def load_env():
     """Load environment variables from .env file."""
-    candidates = (
-        Path(__file__).resolve().parents[1] / ".env",
-        Path(__file__).resolve().parents[2] / ".env",
-    )
-    for env_path in candidates:
-        if not env_path.exists():
-            continue
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    key, value = line.split("=", 1)
-                    os.environ.setdefault(key.strip(), value.strip())
-        return
+    # load_dotenv searches for .env in current and parent directories
+    load_dotenv()
 
 
 def load_huggingface_dataset(

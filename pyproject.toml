@@ -3,25 +3,25 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "telecom-bench"
+name = "open_telco"
 version = "0.1.0"
-description = "Telecommunications reasoning benchmarks"
+description = "Open Telco reasoning benchmarks"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "inspect-ai",
     "openai",
     "datasets",
+    "python-dotenv",
 ]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 packages = [
-    "telecom_bench",
-    "telecom_bench.benchmarks",
-    "telecom_bench.benchmarks.telelogs",
-    "telecom_bench.benchmarks.telemath",
-    "telecom_bench.benchmarks.teleqna",
-    "telecom_bench.scripts",
+    "open_telco",
+    "open_telco.telelogs",
+    "open_telco.telemath",
+    "open_telco.teleqna",
+    "open_telco.scripts",
 ]
 

@@ -2,7 +2,7 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.scorer import choice
 from inspect_ai.solver import multiple_choice
-from telecom_bench.scripts.utils import load_env, load_huggingface_dataset
+from open_telco.scripts.utils import load_env, load_huggingface_dataset
 
 # Load environment variables
 load_env()

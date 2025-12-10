@@ -5,7 +5,7 @@ from inspect_ai.agent import Agent, agent, react, AgentPrompt  # noqa: E402
 from inspect_ai.tool import bash, python  # noqa: E402
 from inspect_ai.dataset import FieldSpec  # noqa: E402
 from inspect_ai.scorer import match  # noqa: E402
-from telecom_bench.scripts.utils import load_env, load_huggingface_dataset  # type: ignore # noqa: E402
+from open_telco.scripts.utils import load_env, load_huggingface_dataset  # type: ignore # noqa: E402
 
 # Load environment variables
 load_env()

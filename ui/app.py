@@ -22,7 +22,7 @@ TASK_FILES: Dict[str, str] = {
 }
 
 TASK_ALIASES: Dict[str, str] = {
-    "telecom_bench": "telemath",
+    "open_telco": "telemath",
     "teleqna_bench": "teleqna",
     "telelogs_bench": "telelogs",
 }

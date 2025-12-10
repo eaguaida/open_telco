@@ -2,8 +2,8 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.scorer import choice, accuracy, stderr
 from inspect_ai.solver import multiple_choice
-from telecom_bench.scripts.utils import load_env, load_huggingface_dataset
-from telecom_bench.benchmarks.telelogs.utils import maj_at_k
+from open_telco.scripts.utils import load_env, load_huggingface_dataset
+from open_telco.telelogs.utils import maj_at_k
 
 
 load_env()
