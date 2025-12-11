@@ -8,6 +8,7 @@ from pathlib import Path
 
 load_env()
 
+
 AGENT_SYSTEM_PROMPT = dedent(""" 
 You are an expert 5G Core Network Engineer and Configuration Specialist.
 You are assisting a user with {Main Category} by converting requests into
@@ -20,6 +21,7 @@ server-side YAML configurations for {Category}.
 Your response must be valid YAML.
 """)
 
+SCORE_PATTERN = r"(?i)\$FINAL_SCORE\s*:\s*([0-9]+(?:\.[0-9]+)?)"
 
 def get_rubric(category: str, rubrics_dir: Path) -> str:
     """Load rubric content based on category."""
@@ -29,10 +31,8 @@ def get_rubric(category: str, rubrics_dir: Path) -> str:
         rubric_path = rubrics_dir / "slice_deployment.txt"
     elif category == "UE Provisioning":
         rubric_path = rubrics_dir / "ue_provisioning.txt"
-    else:
-        return "NO RUBRIC FOUND"
 
-    return rubric_path.read_text() if rubric_path.exists() else "NO RUBRIC FOUND"
+    return rubric_path.read_text()
 
 
 @task
@@ -72,10 +72,9 @@ def teleyaml() -> Task:
     """).strip()
 
     instructions = dedent("""
-        Based on the rubric, reply with 'Score: $NUMBER' (without quotes) where NUMBER is the final score. Then, end with your answer formatted as 'GRADE: $LETTER' (without quotes) where LETTER is one of C{partial_letter}I.  Please choose ONE option for the grade: either "C" for correct answers, {partial_prompt}or "I" for incorrect answers.
-        For example, after reviewing a correct answer you might write 'GRADE: C' or after reviewing an incorrect answer you might write 'GRADE: I'.
+        Based on the rubric, reply with '$FINAL_SCORE: $NUMBER' (without quotes) where NUMBER is the final score. 
 
-        First, write out in a step by step manner your reasoning about the criterion to be sure that your conclusion is correct. Avoid simply stating the correct answers at the outset. Then, end with your answer formatted as 'GRADE: $LETTER' (without quotes) where LETTER is one of C{partial_letter}I. 
+        First, write out in a step by step manner your reasoning about the criterion to be sure that your conclusion is correct. Avoid simply stating the correct answers at the outset. Then, end with your final score formatted as '$FINAL_SCORE: $NUMBER' (without quotes) where NUMBER is the final score. 
     """).strip()
 
     return Task(
@@ -84,7 +83,7 @@ def teleyaml() -> Task:
         scorer=model_graded_fact(
             template=template,
             instructions=instructions,
-            partial_credit=True,
+            grade_pattern=SCORE_PATTERN,
             model="openrouter/openai/gpt-4o",
         ),
         metrics=[accuracy(), stderr()],

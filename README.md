@@ -65,6 +65,8 @@ uv run inspect eval src/open_telco/teleqna/teleqna.py
 uv run inspect eval src/open_telco/telemath/telemath.py
 #TeleLogs
 uv run inspect eval src/open_telco/telelogs/telelogs.py
+#TeleYaml
+uv run inspect eval src/open_telco/teleyaml/teleyaml.py
 ```
 
 With options:
@@ -114,3 +116,15 @@ uv run inspect eval src/open_telco/telemath/telemath.py --limit 10
   ```
 
   *Metrics: pass@1 (averaged over N epochs), maj@4 (majority voting)*
+
+### Network Configuration
+
+- **TeleYaml: 5G Network Configuration Generation**
+  Evaluates the capability of LLMs to generate standard-compliant YAML configurations for 5G core network tasks, specifically AMF Configuration, Network Slicing, and UE Provisioning.
+  [Dataset](https://huggingface.co/datasets/otellm/gsma-sample-data)
+
+  ```bash
+  uv run inspect eval src/open_telco/teleyaml/teleyaml.py
+  ```
+
+  *Metrics: model-graded accuracy*
