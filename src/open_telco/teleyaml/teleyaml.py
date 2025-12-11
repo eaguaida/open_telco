@@ -1,6 +1,6 @@
 from inspect_ai import Task, task
 from inspect_ai.dataset import FieldSpec
-from inspect_ai.scorer import accuracy, stderr, model_graded_fact
+from inspect_ai.scorer import accuracy, stderr, model_graded_fact, model_graded_qa
 from inspect_ai.solver import system_message, generate
 from open_telco.scripts.utils import load_env, load_huggingface_dataset
 from textwrap import dedent
@@ -22,6 +22,7 @@ Your response must be valid YAML.
 """)
 
 SCORE_PATTERN = r"(?i)\$FINAL_SCORE\s*:\s*([0-9]+(?:\.[0-9]+)?)"
+
 
 def get_rubric(category: str, rubrics_dir: Path) -> str:
     """Load rubric content based on category."""
@@ -80,11 +81,11 @@ def teleyaml() -> Task:
     return Task(
         dataset=dataset_samples,
         solver=[system_message(AGENT_SYSTEM_PROMPT), generate()],
-        scorer=model_graded_fact(
+        scorer=model_graded_qa(
             template=template,
             instructions=instructions,
             grade_pattern=SCORE_PATTERN,
-            model="openrouter/openai/gpt-4o",
+            model=["openrouter/google/gemini-3-pro-preview", "openrouter/openai/gpt-4o", "openrouter/deepseek/deepseek-v3.2"]
         ),
         metrics=[accuracy(), stderr()],
     )
