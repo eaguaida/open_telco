@@ -1,11 +1,11 @@
+from dotenv import load_dotenv
 from inspect_ai import Task, task
-from inspect_ai.dataset import Sample
+from inspect_ai.dataset import Sample, hf_dataset
 from inspect_ai.scorer import choice
 from inspect_ai.solver import multiple_choice
-from open_telco.scripts.utils import load_env, load_huggingface_dataset
 
-# Load environment variables
-load_env()
+
+load_dotenv()
 
 
 def teleqna_record_to_sample(record):
@@ -26,9 +26,10 @@ def teleqna(subject: str = "full") -> Task:
         subject: One of 'Research Overview', 'Standards Overview', 
                 'Research Publications', 'Standards Specification', or 'full' (default)
     """
-    dataset = load_huggingface_dataset(
+    dataset = hf_dataset(
         "netop/TeleQnA",
-        sample_fields=teleqna_record_to_sample
+        sample_fields=teleqna_record_to_sample,
+        split="test",
     )
     
     if subject != "full":

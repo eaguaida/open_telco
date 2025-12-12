@@ -1,12 +1,13 @@
+from dotenv import load_dotenv
 from inspect_ai import Task, task
-from inspect_ai.dataset import Sample
+from inspect_ai.dataset import Sample, hf_dataset
 from inspect_ai.scorer import choice, accuracy, stderr
 from inspect_ai.solver import multiple_choice
-from open_telco.scripts.utils import load_env, load_huggingface_dataset
+
 from open_telco.telelogs.utils import maj_at_k
 
 
-load_env()
+load_dotenv()
 
 
 def telelogs_record_to_sample(record):
@@ -20,9 +21,10 @@ def telelogs_record_to_sample(record):
 
 @task
 def telelogs() -> Task:
-    dataset = load_huggingface_dataset(
+    dataset = hf_dataset(
         "eaguaida/telelogs",
-        sample_fields=telelogs_record_to_sample
+        sample_fields=telelogs_record_to_sample,
+        split="test",
     )
 
     return Task(

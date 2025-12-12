@@ -11,6 +11,7 @@ Before using this repository, you must request permission for the benchmark data
 - [TeleQnA Dataset](https://huggingface.co/datasets/netop/TeleQnA)
 - [TeleMath Dataset](https://huggingface.co/datasets/netop/TeleMath)
 - [TeleLogs Dataset](https://huggingface.co/datasets/netop/TeleLogs)
+- [3GPP Dataset](https://huggingface.co/datasets/eaguaida/three_gpp)
 
 **HuggingFace Configuration:**
 
@@ -114,3 +115,15 @@ uv run inspect eval src/open_telco/telemath/telemath.py --limit 10
   ```
 
   *Metrics: pass@1 (averaged over N epochs), maj@4 (majority voting)*
+
+### Standardization
+
+- **3GPP TSG: Technical Specification Group Classification**
+  Classifies 3GPP technical documents according to their working group. Models act as a distinguished expert in the telecommunication domain to identify the correct group for a given text.
+  [Dataset](https://huggingface.co/datasets/eaguaida/three_gpp)
+
+  ```bash
+  uv run inspect eval src/open_telco/three_gpp_tsg/three_gpp_tsg.py
+  ```
+
+  *Metrics: accuracy, stderr*
