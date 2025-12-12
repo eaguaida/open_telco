@@ -22,7 +22,7 @@ packages = [
     "open_telco.telelogs",
     "open_telco.telemath",
     "open_telco.teleqna",
-    "open_telco.three_gpp_tsg",
-    "open_telco.scripts",
+    "open_telco.three_gpp",
+    "open_telco.teleyaml",
 ]
 

@@ -137,7 +137,7 @@ uv run inspect eval src/open_telco/telemath/telemath.py --limit 10
   [Dataset](https://huggingface.co/datasets/eaguaida/three_gpp)
 
   ```bash
-  uv run inspect eval src/open_telco/three_gpp_tsg/three_gpp_tsg.py
+  uv run inspect eval src/open_telco/three_gpp/three_gpp.py
   ```
 
   *Metrics: accuracy, stderr*
