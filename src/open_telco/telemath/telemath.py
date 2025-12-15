@@ -1,37 +1,48 @@
+import re
+from textwrap import dedent
+
 from dotenv import load_dotenv
 from inspect_ai import Task, task
-from inspect_ai.agent import Agent, AgentPrompt, agent, react
 from inspect_ai.dataset import FieldSpec, hf_dataset
-from inspect_ai.scorer import match
-from inspect_ai.tool import bash, python    
-
+from inspect_ai.scorer import scorer, accuracy, stderr, Score, Target
+from inspect_ai.solver import generate, system_message, TaskState
+ 
 
 load_dotenv()
 
-
-@agent
-def telecom_agent(attempts=1) -> Agent:
-    PROMPT = dedent("""
-    You are a telecommunications expert solving mathematical problems.
-    You have several tools available to help with finding the answer. You will
-    see the result of tool calls right after sending the message. If you need
-    to perform multiple actions, you can always send more messages with additional
-    tool calls. Do some reasoning before your actions, describing what tool calls
-    you are going to use and how they fit into your plan.
-
-    CRITICAL: When submitting your answer with {submit}(), you MUST format it as a decimal number with full precision.
-    - Include ALL decimal places - do NOT round to 2 decimals unless that's the exact answer
-    - Examples of correct format: "2.0", "111.23", "15.456789", "1000.0"
+SYSTEM_PROMPT = dedent(r"""
+    You are an expert problem solver. Your task is to solve numerical exercises by following these guidelines:
+    1.  **Understand the Goal:** Clearly identify what the problem is asking you to find, paying close attention to the required units for the final answer.
+    2.  **Reason Step-by-Step:** Provide a clear, sequential reasoning process. Explain the formulas, principles, or logic used in each step. Show intermediate calculations if they clarify your thought process. The detailed structure of your sub-steps is up to you, as long as the reasoning is sound and easy to follow.
+    3.  **Unit Management:**
+        *   Track units throughout your calculations.
+        *   **Crucially, ensure your final numerical answer is converted to the specific units requested in the problem statement.** If intermediate calculations result in a different unit, perform a final conversion step.
+        *   State the unit of the final answer clearly in your explanatory text *before* the boxed answer.
+    4.  **Final Numerical Answer Format:**
+        *   The final answer must be a single numerical value (integer or float).
+        *   Present this numerical value exclusively within the `\$\boxed{{...}}\$` format.
+        *   **CRITICAL:** The `\$\boxed{{...}}\$` block must contain *only* the number. No text, no units, no labels (e.g., NOT `\$\boxed{{Result: 50}}\$` or `\$\boxed{{50 \text{{ mA}}}}\$`, but `\$\boxed{{50}}\$`).
     """)
 
-    return react(
-        description="Telecommunication Operator.",
-        prompt=AgentPrompt(
-            instructions=PROMPT,
-        ),
-        tools=[bash(), python()],
-        attempts=attempts
-    )
+
+def parse_answer(response: str) -> str:
+    matches = re.findall(r'\\boxed\{((?:[^{}]|\{[^{}]*\})*)\}', response)
+    if matches:
+        pred = matches[-1].strip()
+    else:
+        return ""
+    pred = re.sub(r"\n\s*", "", pred).lstrip(":").rstrip("./")
+    return pred
+
+
+@scorer(metrics=[accuracy(), stderr()])
+def telemath_scorer():
+    async def score(state: TaskState, target: Target):
+        answer = state.output.completion
+        parsed = parse_answer(answer)
+        correct = parsed == target.text
+        return Score(value=correct, answer=parsed)
+    return score
 
 
 @task
@@ -56,10 +67,10 @@ def telemath(difficulty: str = "full"):
             lambda sample: sample.metadata.get("difficulty") == difficulty
         )
     
+    solver = [system_message(SYSTEM_PROMPT), generate()]
+    
     return Task(
         dataset=dataset,
-        solver=telecom_agent(),
-        scorer=match(),
-        sandbox=("docker", "../../../data/sandboxes/coding_env/compose.yaml")
+        solver=solver,
+        scorer=telemath_scorer(),
     )
-
